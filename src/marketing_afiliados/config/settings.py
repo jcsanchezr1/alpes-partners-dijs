@@ -1,0 +1,37 @@
+from pydantic_settings import BaseSettings
+from typing import Optional
+
+
+class Settings(BaseSettings):
+    """Configuración de la aplicación."""
+    
+    # Base de datos
+    database_url: str = "postgresql://postgres:postgres@localhost:5432/alpespartners_dijs"
+    
+    # Redis
+    redis_url: str = "redis://localhost:6379"
+    
+    # Aplicación
+    app_name: str = "AlpesPartners DIJS - Marketing de Afiliados"
+    app_version: str = "1.0.0"
+    debug: bool = False
+    environment: str = "development"
+    
+    # API
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+    
+    # Eventos
+    eventos_topico_afiliados: str = "afiliados"
+    eventos_topico_campañas: str = "campañas"
+    
+    # Logging
+    log_level: str = "INFO"
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+
+# Instancia global de configuración
+settings = Settings()
