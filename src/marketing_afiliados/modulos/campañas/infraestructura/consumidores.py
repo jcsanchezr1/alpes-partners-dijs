@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 from datetime import datetime
-from ...seedwork.infraestructura.eventos import ConsumidorEventos
+from ....seedwork.infraestructura.eventos import ConsumidorEventos
 from ..aplicacion.comandos.notificar_nuevo_afiliado import NotificarNuevoAfiliado
 from ..dominio.objetos_valor import TipoAfiliado, EstadoCampaña
 from ..dominio.eventos import OportunidadCampañaDisponible

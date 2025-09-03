@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from ...seedwork.infraestructura.eventos import ConsumidorEventos
+from ....seedwork.infraestructura.eventos import ConsumidorEventos
 from ..aplicacion.comandos.registrar_afiliado import RegistrarAfiliado
 from ..aplicacion.dto import RegistrarAfiliadoDTO
 from ..dominio.objetos_valor import TipoAfiliado

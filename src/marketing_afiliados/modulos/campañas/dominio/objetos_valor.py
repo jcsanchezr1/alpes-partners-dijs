@@ -1,7 +1,7 @@
 from enum import Enum
 from datetime import datetime
 from typing import List, Optional
-from ...seedwork.dominio.objetos_valor import ObjetoValor, Dinero
+from ....seedwork.dominio.objetos_valor import ObjetoValor, Dinero
 
 
 class TipoComision(Enum):

@@ -1,9 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import logging
 
 from .config.settings import settings
 from .api.afiliados import router as afiliados_router
+
+# Configurar logging detallado
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+
+# Configurar loggers específicos para nuestros módulos
+logging.getLogger('src.marketing_afiliados').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)  # Para ver queries SQL
 
 # Crear aplicación FastAPI
 app = FastAPI(
@@ -25,6 +39,9 @@ app.add_middleware(
 # Registrar routers
 app.include_router(afiliados_router)
 
+# Importar funciones de base de datos
+from .seedwork.infraestructura.database import init_db, close_db
+
 # Eventos de aplicación
 @app.on_event("startup")
 async def startup_event():
@@ -32,16 +49,24 @@ async def startup_event():
     print(f"Iniciando {settings.app_name} v{settings.app_version}")
     print(f"Entorno: {settings.environment}")
     
-    # Aquí se inicializarían:
-    # - Conexión a base de datos
+    # Inicializar base de datos
+    try:
+        init_db()
+        print("Base de datos inicializada correctamente")
+    except Exception as e:
+        print(f"Error al inicializar la base de datos: {e}")
+        raise
+    
+    # Aquí se inicializarían también:
     # - Consumidores de eventos
     # - Contenedor de dependencias
-    # - Migraciones de base de datos
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Limpieza al cerrar la aplicación."""
+    close_db()
+    print("Conexiones de base de datos cerradas")
     print("Cerrando aplicación...")
     
     # Aquí se cerrarían:

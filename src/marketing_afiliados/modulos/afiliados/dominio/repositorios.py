@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from typing import List, Optional
-from ...seedwork.dominio.repositorios import Repositorio
+from ....seedwork.dominio.repositorios import Repositorio
 from .entidades import Afiliado
 from .objetos_valor import TipoAfiliado, EstadoAfiliado
 

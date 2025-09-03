@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Set
-from ...seedwork.dominio.entidades import AgregadoRaiz
-from ...seedwork.dominio.objetos_valor import Dinero
-from ...seedwork.dominio.excepciones import ExcepcionReglaDeNegocio, ExcepcionEstadoInvalido
+from ....seedwork.dominio.entidades import AgregadoRaiz
+from ....seedwork.dominio.objetos_valor import Dinero
+from ....seedwork.dominio.excepciones import ExcepcionReglaDeNegocio, ExcepcionEstadoInvalido
 from .objetos_valor import (
     TipoComision, EstadoCampaña, TerminosComision, PeriodoCampaña,
     MaterialPromocional, CriteriosAfiliado, MetricasCampaña

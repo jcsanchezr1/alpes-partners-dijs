@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any
-from ...seedwork.dominio.eventos import EventoDominio, EventoIntegracion
+from ....seedwork.dominio.eventos import EventoDominio, EventoIntegracion
 from .objetos_valor import TipoAfiliado, EstadoAfiliado
 
 

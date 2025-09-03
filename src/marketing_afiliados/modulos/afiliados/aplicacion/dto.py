@@ -32,6 +32,15 @@ class RegistrarAfiliadoDTO(DTO):
         if not v or not v.strip():
             raise ValueError('La descripción es requerida')
         return v.strip()
+    
+    @validator('tipo_afiliado', pre=True)
+    def validar_tipo_afiliado(cls, v):
+        if isinstance(v, str):
+            try:
+                return TipoAfiliado(v)
+            except ValueError:
+                raise ValueError(f'Tipo de afiliado inválido: {v}')
+        return v
 
 
 class AfiliadoDTO(DTO):

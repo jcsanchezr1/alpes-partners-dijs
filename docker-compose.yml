@@ -28,6 +28,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/alpespartners_dijs
       - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=development
+      - RECREATE_DB=false  # Cambiar a true solo si quieres eliminar todos los datos
     depends_on:
       - postgres
       - redis
@@ -41,6 +42,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/alpespartners_dijs
       - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=development
+      - RECREATE_DB=false  # Cambiar a true solo si quieres eliminar todos los datos
     depends_on:
       - postgres
       - redis

@@ -12,7 +12,7 @@ class ManejadorComando(ABC, Generic[C]):
     """Interfaz para manejadores de comandos."""
     
     @abstractmethod
-    async def handle(self, comando: C) -> None:
+    def handle(self, comando: C) -> None:
         """Maneja un comando."""
         pass
 
@@ -21,6 +21,6 @@ class ManejadorQuery(ABC, Generic[Q]):
     """Interfaz para manejadores de queries."""
     
     @abstractmethod
-    async def handle(self, query: Q) -> ResultadoQuery:
+    def handle(self, query: Q) -> ResultadoQuery:
         """Maneja una query."""
         pass

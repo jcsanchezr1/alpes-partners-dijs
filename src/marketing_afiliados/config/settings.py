@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
     
+    # Base de datos - Control de recreación
+    recreate_db: bool = False  # Si es True, elimina y recrea las tablas
+    
     class Config:
         env_file = ".env"
         case_sensitive = False

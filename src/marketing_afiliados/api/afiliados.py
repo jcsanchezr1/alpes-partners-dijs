@@ -1,6 +1,9 @@
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..modulos.afiliados.aplicacion.dto import RegistrarAfiliadoDTO, AfiliadoDTO, ActualizarPerfilAfiliadoDTO
 from ..modulos.afiliados.aplicacion.comandos.registrar_afiliado import RegistrarAfiliado
@@ -25,32 +28,118 @@ class RespuestaAPI(BaseModel):
     datos: Optional[dict] = None
 
 
+# Importaciones adicionales para el mediador
+from ..seedwork.aplicacion.mediador import MediadorMemoria
+from ..seedwork.infraestructura.uow_sincrono import UnidadDeTrabajoSincrona
+from ..seedwork.infraestructura.database import get_db_session
+from ..modulos.afiliados.infraestructura.repositorio_sqlalchemy import RepositorioAfiliadosSQLAlchemy
+from ..modulos.afiliados.aplicacion.handlers import (
+    ManejadorRegistrarAfiliado, ManejadorActivarAfiliado, ManejadorDesactivarAfiliado,
+    ManejadorActualizarPerfilAfiliado, ManejadorObtenerAfiliado, ManejadorObtenerTodosAfiliados
+)
+
+# Cache del mediador (se recrea para cada request con nueva sesión DB)
+_mediador_cache = None
+
+def _configurar_mediador(repositorio: RepositorioAfiliadosSQLAlchemy, uow: UnidadDeTrabajoSincrona):
+    """Configura el mediador con todos los manejadores."""
+    
+    # Siempre creamos un nuevo mediador para cada request (con nueva sesión DB)
+    mediador = MediadorMemoria()
+    
+    # Registrar manejadores de comandos
+    mediador.registrar_manejador_comando(
+        RegistrarAfiliado, 
+        ManejadorRegistrarAfiliado(repositorio, uow)
+    )
+    mediador.registrar_manejador_comando(
+        ActivarAfiliado, 
+        ManejadorActivarAfiliado(repositorio, uow)
+    )
+    mediador.registrar_manejador_comando(
+        DesactivarAfiliado, 
+        ManejadorDesactivarAfiliado(repositorio, uow)
+    )
+    mediador.registrar_manejador_comando(
+        ActualizarPerfilAfiliado, 
+        ManejadorActualizarPerfilAfiliado(repositorio, uow)
+    )
+    
+    # Registrar manejadores de queries
+    mediador.registrar_manejador_query(
+        ObtenerAfiliado, 
+        ManejadorObtenerAfiliado(repositorio)
+    )
+    mediador.registrar_manejador_query(
+        ObtenerTodosAfiliados, 
+        ManejadorObtenerTodosAfiliados(repositorio)
+    )
+    
+    # Importar y registrar ManejadorObtenerAfiliadosActivos
+    from ..modulos.afiliados.aplicacion.handlers import ManejadorObtenerAfiliadosActivos
+    mediador.registrar_manejador_query(
+        ObtenerAfiliadosActivos, 
+        ManejadorObtenerAfiliadosActivos(repositorio)
+    )
+    
+    return mediador
+
+# Dependencia para obtener sesión de base de datos
+def obtener_session_db():
+    for session in get_db_session():
+        yield session
+
 # Dependencias (estas deberían ser inyectadas desde un contenedor DI)
-async def obtener_mediador():
-    # Aquí se inyectaría el mediador real
-    pass
+def obtener_mediador(session_db = Depends(obtener_session_db)):
+    # Crear repositorio y UoW con la sesión de base de datos
+    repositorio = RepositorioAfiliadosSQLAlchemy(session_db)
+    uow = UnidadDeTrabajoSincrona(session_db)
+    
+    # Configurar y retornar el mediador
+    return _configurar_mediador(repositorio, uow)
 
 
 @router.post("/", response_model=RespuestaAPI, status_code=status.HTTP_201_CREATED)
-async def registrar_afiliado(
+def registrar_afiliado(
     datos: RegistrarAfiliadoDTO,
-    mediador = Depends(obtener_mediador)
+    session_db = Depends(obtener_session_db)
 ):
     """Registra un nuevo afiliado."""
+    logger.info(f"🚀 API: Iniciando registro de afiliado - Email: {datos.email}")
+    
     try:
-        comando = RegistrarAfiliado(datos)
-        await mediador.enviar_comando(comando)
+        # Crear repositorio y UoW
+        logger.info("🔄 API: Creando repositorio y UoW...")
+        repositorio = RepositorioAfiliadosSQLAlchemy(session_db)
+        uow = UnidadDeTrabajoSincrona(session_db)
+        
+        # Configurar mediador
+        logger.info("🔄 API: Configurando mediador...")
+        mediador = _configurar_mediador(repositorio, uow)
+        
+        # Ejecutar comando dentro de transacción
+        logger.info("🔄 API: Iniciando transacción...")
+        with uow:
+            logger.info("🔄 API: Creando comando...")
+            comando = RegistrarAfiliado(datos)
+            logger.info(f"🔄 API: Enviando comando al mediador - ID: {comando.id}")
+            mediador.enviar_comando(comando)
+            logger.info("✅ API: Comando procesado por mediador")
+        
+        logger.info(f"✅ API: Transacción completada - Afiliado ID: {comando.id}")
         
         return RespuestaAPI(
             mensaje="Afiliado registrado exitosamente",
             datos={"afiliado_id": comando.id}
         )
     except EmailYaRegistrado as e:
+        logger.warning(f"⚠️ API: Email ya registrado: {e}")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"❌ API: Error interno: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"
@@ -58,16 +147,25 @@ async def registrar_afiliado(
 
 
 @router.get("/", response_model=List[AfiliadoDTO])
-async def listar_afiliados(
+def listar_afiliados(
     estado: Optional[EstadoAfiliado] = None,
     tipo: Optional[TipoAfiliado] = None,
     categoria: Optional[str] = None,
     limite: int = 100,
     offset: int = 0,
-    mediador = Depends(obtener_mediador)
+    session_db = Depends(obtener_session_db)
 ):
     """Lista afiliados con filtros opcionales."""
+    logger.info("🔍 API: Iniciando consulta de afiliados")
+    
     try:
+        # Crear repositorio y mediador
+        logger.info("🔄 API: Creando repositorio para consulta...")
+        repositorio = RepositorioAfiliadosSQLAlchemy(session_db)
+        uow = UnidadDeTrabajoSincrona(session_db)
+        mediador = _configurar_mediador(repositorio, uow)
+        
+        logger.info(f"🔄 API: Ejecutando query - Estado: {estado}, Tipo: {tipo}, Categoría: {categoria}")
         query = ObtenerTodosAfiliados(
             estado=estado,
             tipo=tipo,
@@ -75,16 +173,19 @@ async def listar_afiliados(
             limite=limite,
             offset=offset
         )
-        resultado = await mediador.enviar_query(query)
+        resultado = mediador.enviar_query(query)
         
         if resultado.exitoso:
+            logger.info(f"✅ API: Query exitosa - {len(resultado.datos)} afiliados encontrados")
             return resultado.datos
         else:
+            logger.error(f"❌ API: Query falló - {resultado.mensaje}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=resultado.mensaje
             )
     except Exception as e:
+        logger.error(f"❌ API: Error en consulta: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"

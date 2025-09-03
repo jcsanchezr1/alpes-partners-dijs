@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional, Dict, Any
-from ...seedwork.dominio.entidades import AgregadoRaiz
-from ...seedwork.dominio.objetos_valor import Email, Telefono
-from ...seedwork.dominio.excepciones import ExcepcionReglaDeNegocio, ExcepcionEstadoInvalido
+from ....seedwork.dominio.entidades import AgregadoRaiz
+from ....seedwork.dominio.objetos_valor import Email, Telefono
+from ....seedwork.dominio.excepciones import ExcepcionReglaDeNegocio, ExcepcionEstadoInvalido
 from .objetos_valor import (
     TipoAfiliado, EstadoAfiliado, PerfilAfiliado, 
     MetricasAfiliado, CategoriaAfiliado
