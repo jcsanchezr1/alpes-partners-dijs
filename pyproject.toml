@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "alpespartners_dijs"
 version = "0.1.0"
-description = "Sistema de Marketing de Afiliados - AlpesPartners DDD Implementation"
+description = "AlpesPartners DDD Implementation"
 authors = [
     {name = "AlpesPartners Team", email = "dev@alpespartners.com"}
 ]

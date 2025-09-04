@@ -1,10 +1,10 @@
-# AlpesPartners DIJS - Marketing de Afiliados
+# AlpesPartners DIJS
 
-Sistema de Marketing de Afiliados implementado con Domain-Driven Design (DDD) y arquitectura basada en eventos.
+Sistema de AlpesPartners implementado con Domain-Driven Design (DDD) y arquitectura basada en eventos.
 
 ## Arquitectura
 
-Este proyecto implementa el servicio de **Marketing de Afiliados** con dos módulos principales:
+Este proyecto implementa el servicio de **AlpesPartners** con dos módulos principales:
 
 - **Módulo Afiliados**: Gestión del ciclo de vida de afiliados
 - **Módulo Campañas**: Gestión de campañas de afiliación
@@ -53,7 +53,7 @@ cp .env.example .env
 alembic upgrade head
 
 # Iniciar servidor
-uvicorn src.marketing_afiliados.main:app --reload
+uvicorn src.alpes_partners.main:app --reload
 ```
 
 ## API Endpoints
@@ -74,7 +74,7 @@ uvicorn src.marketing_afiliados.main:app --reload
 
 ```
 src/
-└── marketing_afiliados/
+└── alpes_partners/
     ├── seedwork/           # Base DDD compartida
     ├── modulos/
     │   ├── afiliados/      # Módulo Afiliados

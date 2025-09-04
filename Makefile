@@ -31,7 +31,7 @@ format-check: ## Verifica el formato del código
 	isort --check-only src tests
 
 run: ## Ejecuta la aplicación localmente
-	uvicorn src.marketing_afiliados.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn src.alpes_partners.main:app --reload --host 0.0.0.0 --port 8000
 
 docker-build: ## Construye la imagen Docker
 	docker-compose build

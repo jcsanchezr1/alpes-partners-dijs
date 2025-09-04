@@ -1,8 +1,8 @@
 import pytest
 from datetime import datetime
-from src.marketing_afiliados.modulos.afiliados.dominio.entidades import Afiliado
-from src.marketing_afiliados.modulos.afiliados.dominio.objetos_valor import TipoAfiliado, EstadoAfiliado
-from src.marketing_afiliados.seedwork.dominio.excepciones import ExcepcionReglaDeNegocio
+from src.alpes_partners.modulos.afiliados.dominio.entidades import Afiliado
+from src.alpes_partners.modulos.afiliados.dominio.objetos_valor import TipoAfiliado, EstadoAfiliado
+from src.alpes_partners.seedwork.dominio.excepciones import ExcepcionReglaDeNegocio
 
 
 class TestAfiliado:

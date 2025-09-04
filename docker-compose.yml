@@ -20,7 +20,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  marketing-afiliados:
+  alpes-partners:
     build: .
     ports:
       - "8000:8000"
@@ -34,7 +34,7 @@ services:
       - redis
     volumes:
       - .:/app
-    command: uvicorn src.marketing_afiliados.main:app --host 0.0.0.0 --port 8000 --reload
+    command: python run_flask.py
 
   celery-worker:
     build: .
@@ -48,7 +48,7 @@ services:
       - redis
     volumes:
       - .:/app
-    command: celery -A src.marketing_afiliados.infraestructura.celery_app worker --loglevel=info
+    command: celery -A src.alpes_partners.infraestructura.celery_app worker --loglevel=info
 
 volumes:
   postgres_data:

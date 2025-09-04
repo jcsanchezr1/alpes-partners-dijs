@@ -21,4 +21,4 @@ RUN pip install -e .
 EXPOSE 8000
 
 # Default command
-CMD ["uvicorn", "src.marketing_afiliados.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "run_flask.py"]
