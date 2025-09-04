@@ -86,6 +86,19 @@ class Influencer(AgregacionRaiz):
         # Por ahora, simplemente valida que el influencer esté en estado correcto
         if self.estado != EstadoInfluencer.PENDIENTE:
             raise ExcepcionEstadoInvalido("El influencer debe estar en estado PENDIENTE para ser procesado")
+        
+        # Importar el evento aquí para evitar imports circulares
+        from .eventos import InfluencerRegistrado
+        
+        # Emitir evento de influencer registrado
+        self.agregar_evento(InfluencerRegistrado(
+            influencer_id=str(self.id),
+            nombre=self.nombre,  # nombre es str, no objeto valor
+            email=self.email.valor,  # email es objeto valor
+            categorias=self.perfil.categorias.categorias if hasattr(self.perfil, 'categorias') else [],
+            plataformas=[p.valor for p in self.plataformas] if hasattr(self, 'plataformas') and self.plataformas else [],
+            fecha_registro=self.fecha_creacion
+        ))
     
     def activar(self) -> None:
         """Activa el influencer."""
@@ -97,13 +110,15 @@ class Influencer(AgregacionRaiz):
         
         self.estado = EstadoInfluencer.ACTIVO
         self.fecha_activacion = datetime.utcnow()
-        self.incrementar_version()
         
-        # Emitir evento
+        # Importar el evento aquí para evitar imports circulares
+        from .eventos import InfluencerActivado
+        
+        # Emitir evento de influencer activado
         self.agregar_evento(InfluencerActivado(
-            influencer_id=self.id,
-            nombre=self.nombre,
-            plataformas=list(self.audiencia_por_plataforma.keys()),
+            influencer_id=str(self.id),
+            nombre=self.nombre,  # nombre es str, no objeto valor
+            plataformas=[p.valor for p in self.plataformas] if hasattr(self, 'plataformas') and self.plataformas else [],
             fecha_activacion=self.fecha_activacion
         ))
     
@@ -117,12 +132,14 @@ class Influencer(AgregacionRaiz):
         
         self.estado = EstadoInfluencer.INACTIVO
         self.fecha_desactivacion = datetime.utcnow()
-        self.incrementar_version()
         
-        # Emitir evento
+        # Importar el evento aquí para evitar imports circulares
+        from .eventos import InfluencerDesactivado
+        
+        # Emitir evento de influencer desactivado
         self.agregar_evento(InfluencerDesactivado(
-            influencer_id=self.id,
-            nombre=self.nombre,
+            influencer_id=str(self.id),
+            nombre=self.nombre,  # nombre es str, no objeto valor
             motivo=motivo,
             fecha_desactivacion=self.fecha_desactivacion
         ))

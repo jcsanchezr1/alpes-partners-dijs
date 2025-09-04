@@ -17,18 +17,22 @@ def importar_modelos_alchemy():
 
 def comenzar_consumidor():
     """
-    Este es un código de ejemplo. Aunque esto sea funcional puede ser un poco peligroso tener 
-    threads corriendo por si solos. Mi sugerencia es en estos casos usar un verdadero manejador
-    de procesos y threads como Celery.
+    NOTA: Los consumidores de Pulsar se ejecutan en un servicio separado (pulsar-consumer)
+    para evitar problemas de concurrencia y recursos en el proceso principal de Flask.
+    
+    Si necesitas ejecutar consumidores en el mismo proceso (no recomendado para producción),
+    descomenta el código siguiente:
     """
-    import threading
-    import alpes_partners.modulos.influencers.infraestructura.consumidores as influencers
-
-    # Suscripción a eventos
-    threading.Thread(target=influencers.suscribirse_a_eventos).start()
-
-    # Suscripción a comandos
-    threading.Thread(target=influencers.suscribirse_a_comandos).start()
+    # import threading
+    # import alpes_partners.modulos.influencers.infraestructura.consumidores as influencers
+    # 
+    # # Suscripción a eventos (solo para desarrollo/testing)
+    # threading.Thread(target=influencers.suscribirse_a_eventos_influencers, daemon=True).start()
+    # 
+    # # Suscripción a comandos (solo para desarrollo/testing)  
+    # threading.Thread(target=influencers.suscribirse_a_comandos_influencers, daemon=True).start()
+    
+    pass  # Los consumidores se ejecutan en el servicio pulsar-consumer
 
 def create_app(configuracion={}):
     # Init la aplicacion de Flask
