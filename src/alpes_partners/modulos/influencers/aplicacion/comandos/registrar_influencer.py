@@ -9,6 +9,11 @@ from ...dominio.entidades import Influencer
 from .....seedwork.infraestructura.uow import UnidadTrabajoPuerto
 from ..mapeadores import MapeadorInfluencer
 from ...infraestructura.repositorio_sqlalchemy import RepositorioInfluencersSQLAlchemy
+from ...dominio.excepciones import EmailYaRegistrado
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -29,6 +34,20 @@ class RegistrarInfluencer(Comando):
 class RegistrarInfluencerHandler(RegistrarInfluencerBaseHandler):
     
     def handle(self, comando: RegistrarInfluencer):
+        logger.info(f"🎯 COMANDO HANDLER: Iniciando registro de influencer - Email: {comando.email}")
+        
+        # Crear repositorio para validaciones de dominio
+        repositorio = self.fabrica_repositorio.crear_objeto(RepositorioInfluencersSQLAlchemy.__class__)
+        
+        # VALIDACIÓN DE DOMINIO: Verificar unicidad del email ANTES de crear la entidad
+        logger.info(f"🔍 COMANDO HANDLER: Verificando unicidad del email: {comando.email}")
+        if repositorio.existe_email(comando.email):
+            logger.warning(f"⚠️ COMANDO HANDLER: Email ya registrado: {comando.email}")
+            raise EmailYaRegistrado(f"Ya existe un influencer con el email {comando.email}")
+        
+        logger.info(f"✅ COMANDO HANDLER: Email disponible: {comando.email}")
+        
+        # Crear la entidad solo después de validar las reglas de dominio
         influencer_dto = RegistrarInfluencerDTO(
                 fecha_actualizacion=comando.fecha_actualizacion
             ,   fecha_creacion=comando.fecha_creacion
@@ -44,11 +63,12 @@ class RegistrarInfluencerHandler(RegistrarInfluencerBaseHandler):
         influencer: Influencer = self.fabrica_influencers.crear_objeto(influencer_dto, MapeadorInfluencer())
         influencer.crear_influencer(influencer)
 
-        repositorio = self.fabrica_repositorio.crear_objeto(RepositorioInfluencersSQLAlchemy.__class__)
-
+        # Usar el sistema de UoW con batches y eventos (como en el tutorial)
         UnidadTrabajoPuerto.registrar_batch(repositorio.agregar, influencer)
         UnidadTrabajoPuerto.savepoint()
         UnidadTrabajoPuerto.commit()
+        
+        logger.info(f"✅ COMANDO HANDLER: Influencer registrado exitosamente - ID: {comando.id}")
 
 
 @comando.register(RegistrarInfluencer)

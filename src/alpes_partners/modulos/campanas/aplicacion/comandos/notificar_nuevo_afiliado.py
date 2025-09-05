@@ -1,5 +1,5 @@
 from typing import List
-from ....seedwork.aplicacion.comandos import Comando
+from alpes_partners.seedwork.aplicacion.comandos import Comando
 
 
 class NotificarNuevoInfluencer(Comando):

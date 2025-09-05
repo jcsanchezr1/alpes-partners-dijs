@@ -7,14 +7,12 @@ from flask import request, Response
 from ..modulos.influencers.aplicacion.dto import InfluencerDTO
 from ..modulos.influencers.aplicacion.servicios import ServicioInfluencer
 from ..modulos.influencers.dominio.objetos_valor import TipoInfluencer, EstadoInfluencer, Plataforma
-from ..modulos.influencers.dominio.excepciones import InfluencerNoEncontrado, EmailYaRegistrado
+from ..modulos.influencers.dominio.excepciones import EmailYaRegistrado
 from ..seedwork.aplicacion.comandos import ejecutar_commando
 from ..seedwork.dominio.excepciones import ExcepcionDominio
 
 # Importar el comando DIRECTAMENTE para registrarlo (como en el tutorial)
 from ..modulos.influencers.aplicacion.comandos.registrar_influencer import RegistrarInfluencer
-from ..modulos.influencers.aplicacion.queries.obtener_influencer import ObtenerInfluencer
-from ..seedwork.aplicacion.queries import ejecutar_query
 
 logger = logging.getLogger(__name__)
 
@@ -22,75 +20,15 @@ logger = logging.getLogger(__name__)
 bp = api.crear_blueprint('influencers', '/influencers')
 
 # Importaciones para el servicio
-from ..seedwork.infraestructura.uow_sincrono import UnidadDeTrabajoSincrona
-from ..seedwork.infraestructura.database import get_db_session
+from ..seedwork.infraestructura.uow import unidad_de_trabajo
 from ..modulos.influencers.infraestructura.repositorio_sqlalchemy import RepositorioInfluencersSQLAlchemy
 
 
 def obtener_servicio_influencer():
     """Función helper para obtener el servicio de influencers."""
-    session_db = next(get_db_session())
-    repositorio = RepositorioInfluencersSQLAlchemy(session_db)
-    uow = UnidadDeTrabajoSincrona(session_db)
-    return ServicioInfluencer(repositorio, uow), session_db
-
-
-@bp.route('/registrar', methods=('POST',))
-def registrar_influencer():
-    """Registra un nuevo influencer usando el servicio."""
-    try:
-        datos_dict = request.json
-        logger.info(f"🚀 API: Iniciando registro de influencer - Email: {datos_dict.get('email')}")
-        
-        servicio, session_db = obtener_servicio_influencer()
-        try:
-            # Crear objeto de datos desde el request
-            class RegistrarInfluencerRequest:
-                def __init__(self, **kwargs):
-                    self.nombre = kwargs.get('nombre')
-                    self.email = kwargs.get('email')
-                    self.categorias = kwargs.get('categorias', [])
-                    self.descripcion = kwargs.get('descripcion', '')
-                    self.biografia = kwargs.get('biografia', '')
-                    self.sitio_web = kwargs.get('sitio_web', '')
-                    self.telefono = kwargs.get('telefono', '')
-            
-            datos = RegistrarInfluencerRequest(**datos_dict)
-            influencer_id = servicio.registrar_influencer(datos)
-            
-            logger.info(f"✅ API: Influencer registrado exitosamente - ID: {influencer_id}")
-            return Response(
-                json.dumps({
-                    "mensaje": "Influencer registrado exitosamente",
-                    "datos": {"influencer_id": influencer_id}
-                }),
-                status=201,
-                mimetype='application/json'
-            )
-        finally:
-            session_db.close()
-            
-    except EmailYaRegistrado as e:
-        logger.warning(f"⚠️ API: Email ya registrado: {e}")
-        return Response(
-            json.dumps({"error": str(e)}),
-            status=409,
-            mimetype='application/json'
-        )
-    except ExcepcionDominio as e:
-        logger.error(f"❌ API: Error de dominio: {e}")
-        return Response(
-            json.dumps({"error": str(e)}),
-            status=400,
-            mimetype='application/json'
-        )
-    except Exception as e:
-        logger.error(f"❌ API: Error interno: {e}", exc_info=True)
-        return Response(
-            json.dumps({"error": "Error interno del servidor"}),
-            status=500,
-            mimetype='application/json'
-        )
+    repositorio = RepositorioInfluencersSQLAlchemy()  # Sin parámetros, usa db.session
+    uow = unidad_de_trabajo()  # Obtiene la UoW del contexto Flask
+    return ServicioInfluencer(repositorio, uow)
 
 
 @bp.route('/registrar-comando', methods=('POST',))
@@ -128,6 +66,13 @@ def registrar_influencer_asincrono():
             mimetype='application/json'
         )
         
+    except EmailYaRegistrado as e:
+        logger.warning(f"⚠️ API: Email ya registrado en comando: {e}")
+        return Response(
+            json.dumps({"error": str(e)}),
+            status=409,
+            mimetype='application/json'
+        )
     except ExcepcionDominio as e:
         logger.error(f"❌ API: Error de dominio: {e}")
         return Response(
@@ -169,48 +114,61 @@ def listar_influencers():
         if plataforma:
             plataforma = Plataforma(plataforma)
         
-        servicio, session_db = obtener_servicio_influencer()
-        try:
-            resultado = servicio.listar_influencers(
-                estado=estado,
-                tipo=tipo,
-                categoria=categoria,
-                plataforma=plataforma,
-                min_seguidores=min_seguidores,
-                max_seguidores=max_seguidores,
-                engagement_minimo=engagement_minimo,
-                limite=limite,
-                offset=offset
-            )
+        servicio = obtener_servicio_influencer()
+        resultado = servicio.listar_influencers(
+            estado=estado,
+            tipo=tipo,
+            categoria=categoria,
+            plataforma=plataforma,
+            min_seguidores=min_seguidores,
+            max_seguidores=max_seguidores,
+            engagement_minimo=engagement_minimo,
+            limite=limite,
+            offset=offset
+        )
+        
+        logger.info(f"✅ API: Consulta exitosa - {len(resultado)} influencers encontrados")
+        
+        # Convertir DTOs a diccionarios para JSON
+        resultado_dict = []
+        for influencer_dto in resultado:
+            # Manejar estado (puede ser enum o string)
+            estado_valor = None
+            if influencer_dto.estado:
+                estado_valor = influencer_dto.estado.value if hasattr(influencer_dto.estado, 'value') else influencer_dto.estado
             
-            logger.info(f"✅ API: Consulta exitosa - {len(resultado)} influencers encontrados")
+            # Manejar tipo_principal (puede ser enum o string)
+            tipo_valor = None
+            if hasattr(influencer_dto, 'tipo_principal') and influencer_dto.tipo_principal:
+                tipo_valor = influencer_dto.tipo_principal.value if hasattr(influencer_dto.tipo_principal, 'value') else influencer_dto.tipo_principal
             
-            # Convertir DTOs a diccionarios para JSON
-            resultado_dict = []
-            for influencer_dto in resultado:
-                resultado_dict.append({
-                    'id': influencer_dto.id,
-                    'nombre': influencer_dto.nombre,
-                    'email': influencer_dto.email,
-                    'categorias': influencer_dto.categorias,
-                    'descripcion': influencer_dto.descripcion,
-                    'biografia': influencer_dto.biografia,
-                    'sitio_web': influencer_dto.sitio_web,
-                    'telefono': influencer_dto.telefono,
-                    'estado': influencer_dto.estado.value if influencer_dto.estado else None,
-                    'tipo': influencer_dto.tipo.value if influencer_dto.tipo else None,
-                    'fecha_creacion': influencer_dto.fecha_creacion,
-                    'fecha_actualizacion': influencer_dto.fecha_actualizacion
-                })
-            
-            return Response(
-                json.dumps(resultado_dict),
-                status=200,
-                mimetype='application/json'
-            )
-        finally:
-            session_db.close()
-            
+            resultado_dict.append({
+                'id': influencer_dto.id,
+                'nombre': influencer_dto.nombre,
+                'email': influencer_dto.email,
+                'categorias': influencer_dto.categorias,
+                'descripcion': influencer_dto.descripcion,
+                'biografia': influencer_dto.biografia,
+                'sitio_web': influencer_dto.sitio_web,
+                'telefono': influencer_dto.telefono,
+                'estado': estado_valor,
+                'tipo_principal': tipo_valor,
+                'fecha_creacion': influencer_dto.fecha_creacion,
+                'fecha_activacion': getattr(influencer_dto, 'fecha_activacion', None),
+                'plataformas': getattr(influencer_dto, 'plataformas', []),
+                'total_seguidores': getattr(influencer_dto, 'total_seguidores', 0),
+                'engagement_promedio': getattr(influencer_dto, 'engagement_promedio', 0.0),
+                'campañas_completadas': getattr(influencer_dto, 'campañas_completadas', 0),
+                'cpm_promedio': getattr(influencer_dto, 'cpm_promedio', 0.0),
+                'ingresos_generados': getattr(influencer_dto, 'ingresos_generados', 0.0)
+            })
+        
+        return Response(
+            json.dumps(resultado_dict),
+            status=200,
+            mimetype='application/json'
+        )
+        
     except Exception as e:
         logger.error(f"❌ API: Error en consulta: {e}", exc_info=True)
         return Response(
@@ -219,102 +177,3 @@ def listar_influencers():
             mimetype='application/json'
         )
 
-
-@bp.route('/<influencer_id>', methods=('GET',))
-def obtener_influencer(influencer_id):
-    """Obtiene un influencer por ID."""
-    try:
-        logger.info(f"🔍 API: Obteniendo influencer - ID: {influencer_id}")
-        
-        servicio, session_db = obtener_servicio_influencer()
-        try:
-            resultado = servicio.obtener_influencer_por_id(influencer_id)
-            logger.info(f"✅ API: Influencer encontrado - ID: {influencer_id}")
-            
-            # Convertir DTO a diccionario para JSON
-            resultado_dict = {
-                'id': resultado.id,
-                'nombre': resultado.nombre,
-                'email': resultado.email,
-                'categorias': resultado.categorias,
-                'descripcion': resultado.descripcion,
-                'biografia': resultado.biografia,
-                'sitio_web': resultado.sitio_web,
-                'telefono': resultado.telefono,
-                'estado': resultado.estado.value if resultado.estado else None,
-                'tipo': resultado.tipo.value if resultado.tipo else None,
-                'fecha_creacion': resultado.fecha_creacion,
-                'fecha_actualizacion': resultado.fecha_actualizacion
-            }
-            
-            return Response(
-                json.dumps(resultado_dict),
-                status=200,
-                mimetype='application/json'
-            )
-        finally:
-            session_db.close()
-            
-    except InfluencerNoEncontrado as e:
-        logger.warning(f"⚠️ API: Influencer no encontrado: {e}")
-        return Response(
-            json.dumps({"error": str(e)}),
-            status=404,
-            mimetype='application/json'
-        )
-    except Exception as e:
-        logger.error(f"❌ API: Error interno: {e}", exc_info=True)
-        return Response(
-            json.dumps({"error": "Error interno del servidor"}),
-            status=500,
-            mimetype='application/json'
-        )
-
-
-@bp.route('/query/<influencer_id>', methods=('GET',))
-def obtener_influencer_usando_query(influencer_id):
-    """Obtiene un influencer por ID usando el patrón de queries."""
-    try:
-        logger.info(f"🔍 API: Obteniendo influencer con query - ID: {influencer_id}")
-        
-        query_resultado = ejecutar_query(ObtenerInfluencer(influencer_id))
-        
-        logger.info(f"✅ API: Influencer encontrado con query - ID: {influencer_id}")
-        
-        # Convertir resultado a diccionario para JSON
-        resultado = query_resultado.resultado
-        resultado_dict = {
-            'id': resultado.id,
-            'nombre': resultado.nombre,
-            'email': resultado.email,
-            'categorias': resultado.categorias,
-            'descripcion': resultado.descripcion,
-            'biografia': resultado.biografia,
-            'sitio_web': resultado.sitio_web,
-            'telefono': resultado.telefono,
-            'estado': resultado.estado.value if resultado.estado else None,
-            'tipo': resultado.tipo.value if resultado.tipo else None,
-            'fecha_creacion': resultado.fecha_creacion,
-            'fecha_actualizacion': resultado.fecha_actualizacion
-        }
-        
-        return Response(
-            json.dumps(resultado_dict),
-            status=200,
-            mimetype='application/json'
-        )
-        
-    except InfluencerNoEncontrado as e:
-        logger.warning(f"⚠️ API: Influencer no encontrado: {e}")
-        return Response(
-            json.dumps({"error": str(e)}),
-            status=404,
-            mimetype='application/json'
-        )
-    except Exception as e:
-        logger.error(f"❌ API: Error interno: {e}", exc_info=True)
-        return Response(
-            json.dumps({"error": "Error interno del servidor"}),
-            status=500,
-            mimetype='application/json'
-        )
