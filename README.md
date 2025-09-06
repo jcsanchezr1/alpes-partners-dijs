@@ -2,7 +2,7 @@
 
 Sistema de **AlpesPartners** implementado con **Domain-Driven Design (DDD)** y **arquitectura hexagonal (puertos y adaptadores)** basada en eventos.
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 ### Arquitectura Hexagonal (Puertos y Adaptadores)
 
@@ -40,7 +40,7 @@ El servicio utiliza los siguientes **patrones y principios de Domain-Driven Desi
 - ** Repositorios**: Abstracción para persistencia
 - ** Unidad de Trabajo**: Manejo de transacciones y eventos
 
-## 🏢 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 src/alpes_partners/
@@ -83,7 +83,7 @@ uow.registrar_batch(repositorio.agregar, influencer)
 uow.commit()  # Persiste y publica eventos
 ```
 
-## 📡omunicación Entre Módulos
+## omunicación Entre Módulos
 
 La **comunicación entre módulos** (`influencers` ↔ `campanas`) se realiza **exclusivamente mediante eventos de dominio**:
 
@@ -186,7 +186,7 @@ python run_flask.py
 python run_pulsar_consumer.py
 ```
 
-## 📋 API Endpoints
+## API Endpoints
 
 ### Influencers
 - **`POST /influencers/registrar-comando`** - Registrar influencer (asíncrono)
