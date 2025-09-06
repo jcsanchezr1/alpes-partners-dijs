@@ -1,61 +1,61 @@
 """
-Repositorios para el dominio de campañas.
+Repositorios para el dominio de campanas.
 """
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from .entidades import Campaña
+from .entidades import Campana
 
 
 class RepositorioCampanas(ABC):
-    """Repositorio abstracto para campañas."""
+    """Repositorio abstracto para campanas."""
     
     @abstractmethod
-    def obtener_por_id(self, campaña_id: str) -> Optional[Campaña]:
-        """Obtiene una campaña por su ID."""
+    def obtener_por_id(self, campana_id: str) -> Optional[Campana]:
+        """Obtiene una campana por su ID."""
         pass
     
     @abstractmethod
-    def obtener_por_nombre(self, nombre: str) -> Optional[Campaña]:
-        """Obtiene una campaña por su nombre."""
+    def obtener_por_nombre(self, nombre: str) -> Optional[Campana]:
+        """Obtiene una campana por su nombre."""
         pass
     
     @abstractmethod
-    def obtener_activas(self) -> List[Campaña]:
-        """Obtiene todas las campañas activas."""
+    def obtener_activas(self) -> List[Campana]:
+        """Obtiene todas las campanas activas."""
         pass
     
     @abstractmethod
-    def obtener_por_categoria(self, categoria: str) -> List[Campaña]:
-        """Obtiene campañas que incluyan una categoría específica."""
+    def obtener_por_categoria(self, categoria: str) -> List[Campana]:
+        """Obtiene campanas que incluyan una categoría específica."""
         pass
     
     @abstractmethod
-    def obtener_por_influencer_origen(self, influencer_id: str) -> List[Campaña]:
-        """Obtiene campañas creadas para un influencer específico."""
+    def obtener_por_influencer_origen(self, influencer_id: str) -> List[Campana]:
+        """Obtiene campanas creadas para un influencer específico."""
         pass
     
     @abstractmethod
-    def obtener_todas(self, limite: int = 100, offset: int = 0) -> List[Campaña]:
-        """Obtiene todas las campañas con paginación."""
+    def obtener_todas(self, limite: int = 100, offset: int = 0) -> List[Campana]:
+        """Obtiene todas las campanas con paginación."""
         pass
     
     @abstractmethod
-    def agregar(self, campaña: Campaña) -> None:
-        """Agrega una nueva campaña."""
+    def agregar(self, campana: Campana) -> None:
+        """Agrega una nueva campana."""
         pass
     
     @abstractmethod
-    def actualizar(self, campaña: Campaña) -> None:
-        """Actualiza una campaña existente."""
+    def actualizar(self, campana: Campana) -> None:
+        """Actualiza una campana existente."""
         pass
     
     @abstractmethod
-    def eliminar(self, campaña_id: str) -> None:
-        """Elimina una campaña."""
+    def eliminar(self, campana_id: str) -> None:
+        """Elimina una campana."""
         pass
     
     @abstractmethod
     def existe_con_nombre(self, nombre: str, excluir_id: Optional[str] = None) -> bool:
-        """Verifica si existe una campaña con el nombre dado."""
+        """Verifica si existe una campana con el nombre dado."""
         pass

@@ -15,7 +15,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(src_path))
 
-from alpes_partners.modulos.campanas.infraestructura.consumidores.consumidor_eventos_influencers import ConsumidorEventosInfluencers
+from alpes_partners.modulos.campanas.infraestructura.consumidores import suscribirse_a_eventos_influencers_desde_campanas
 
 # Configurar logging
 logging.basicConfig(
@@ -40,34 +40,21 @@ def main():
     4. Cierre limpio de recursos
     """
     
-    logger.info("🚀 MAIN: Iniciando consumidor de eventos de influencers para campañas")
+    logger.info("🚀 MAIN: Iniciando consumidor de eventos de influencers para campanas")
     logger.info("=" * 80)
     logger.info("📋 CONFIGURACIÓN:")
     logger.info(f"   🌐 PULSAR_ADDRESS: {os.getenv('PULSAR_ADDRESS', 'localhost')}")
-    logger.info(f"   📊 Módulo: Campañas")
+    logger.info(f"   📊 Módulo: Campanas")
     logger.info(f"   🎯 Eventos: InfluencerRegistrado, InfluencerActivado, InfluencerDesactivado")
     logger.info("=" * 80)
     
-    consumidor = None
-    
     try:
-        # Crear e inicializar consumidor
-        consumidor = ConsumidorEventosInfluencers()
-        
-        # Conectar a Pulsar
-        logger.info("🔄 MAIN: Conectando a Pulsar...")
-        consumidor.conectar()
-        
-        # Configurar consumidores
-        logger.info("🔄 MAIN: Configurando consumidores...")
-        consumidor.configurar_consumidores()
-        
-        # Iniciar consumo
+        # Iniciar consumo de eventos
         logger.info("🎯 MAIN: Iniciando consumo de eventos...")
         logger.info("   💡 Presiona Ctrl+C para detener el consumidor")
         logger.info("=" * 80)
         
-        consumidor.consumir_eventos()
+        suscribirse_a_eventos_influencers_desde_campanas()
         
     except KeyboardInterrupt:
         logger.info("🛑 MAIN: Deteniendo consumidor por solicitud del usuario")
@@ -79,10 +66,6 @@ def main():
         sys.exit(1)
         
     finally:
-        if consumidor:
-            logger.info("🔄 MAIN: Cerrando recursos...")
-            consumidor.cerrar()
-        
         logger.info("🏁 MAIN: Consumidor finalizado")
 
 

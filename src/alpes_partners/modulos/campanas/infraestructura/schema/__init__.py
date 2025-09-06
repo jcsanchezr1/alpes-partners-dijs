@@ -1,5 +1,5 @@
 """
-Schema de infraestructura para el módulo de campañas.
+Schema de infraestructura para el módulo de campanas.
 """
 
 from .campanas import Campanas, EstadoCampanaEnum, TipoComisionEnum

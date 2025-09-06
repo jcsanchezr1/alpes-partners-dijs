@@ -131,12 +131,12 @@ class MetricasInfluencer(ObjetoValor):
     """Métricas de rendimiento del influencer."""
     
     def __init__(self, 
-                 campañas_completadas: int = 0,
+                 campanas_completadas: int = 0,
                  engagement_promedio: float = 0.0,
                  cpm_promedio: float = 0.0,
                  ingresos_generados: float = 0.0):
-        if campañas_completadas < 0:
-            raise ValueError("Las campañas completadas no pueden ser negativas")
+        if campanas_completadas < 0:
+            raise ValueError("Las campanas completadas no pueden ser negativas")
         if engagement_promedio < 0:
             raise ValueError("El engagement promedio no puede ser negativo")
         if cpm_promedio < 0:
@@ -144,7 +144,7 @@ class MetricasInfluencer(ObjetoValor):
         if ingresos_generados < 0:
             raise ValueError("Los ingresos generados no pueden ser negativos")
         
-        self.campañas_completadas = campañas_completadas
+        self.campanas_completadas = campanas_completadas
         self.engagement_promedio = engagement_promedio
         self.cpm_promedio = cpm_promedio
         self.ingresos_generados = ingresos_generados

@@ -7,15 +7,15 @@ Sistema de AlpesPartners implementado con Domain-Driven Design (DDD) y arquitect
 Este proyecto implementa el servicio de **AlpesPartners** con dos módulos principales:
 
 - **Módulo Afiliados**: Gestión del ciclo de vida de afiliados
-- **Módulo Campañas**: Gestión de campañas de afiliación
+- **Módulo Campanas**: Gestión de campanas de afiliación
 
 ## Comunicación Asíncrona
 
 Los módulos se comunican mediante eventos de dominio a través de Redis como broker de mensajes:
 
-- `AfiliadoRegistrado` → Notifica al módulo Campañas
-- `CampañaCreada` → Notifica oportunidades a afiliados
-- `AfiliadoAsignadoACampaña` → Confirma asignaciones
+- `AfiliadoRegistrado` → Notifica al módulo Campanas
+- `CampanaCreada` → Notifica oportunidades a afiliados
+- `AfiliadoAsignadoACampana` → Confirma asignaciones
 
 ## Tecnologías
 
@@ -64,11 +64,11 @@ uvicorn src.alpes_partners.main:app --reload
 - `GET /api/v1/afiliados/{id}` - Obtener afiliado
 - `PUT /api/v1/afiliados/{id}/activar` - Activar afiliado
 
-### Campañas
-- `POST /api/v1/campañas` - Crear campaña
-- `GET /api/v1/campañas` - Listar campañas
-- `GET /api/v1/campañas/{id}` - Obtener campaña
-- `POST /api/v1/campañas/{id}/asignar-afiliado` - Asignar afiliado
+### Campanas
+- `POST /api/v1/campanas` - Crear campana
+- `GET /api/v1/campanas` - Listar campanas
+- `GET /api/v1/campanas/{id}` - Obtener campana
+- `POST /api/v1/campanas/{id}/asignar-afiliado` - Asignar afiliado
 
 ## Estructura del Proyecto
 
@@ -78,7 +78,7 @@ src/
     ├── seedwork/           # Base DDD compartida
     ├── modulos/
     │   ├── afiliados/      # Módulo Afiliados
-    │   └── campañas/       # Módulo Campañas
+    │   └── campanas/       # Módulo Campanas
     ├── config/             # Configuración
     └── api/                # Endpoints REST
 ```

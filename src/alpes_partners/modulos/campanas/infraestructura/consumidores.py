@@ -1,241 +1,156 @@
 """
-Consumidores de Apache Pulsar para eventos de influencers en el módulo de CAMPAÑAS.
-Siguiendo el mismo patrón que influencers pero procesando eventos para crear campañas automáticamente.
+Consumidor de eventos para el módulo de campanas.
+Se suscribe a eventos de influencers y ejecuta comandos para crear campanas automáticamente.
 """
 
 import logging
+import time
+import uuid
+from datetime import datetime
+
+# Configurar logging
 logger = logging.getLogger(__name__)
 
-logger.info("🔍 CAMPAÑAS: Iniciando imports del consumidor...")
+# Imports esenciales
+import pulsar
+import _pulsar
+from pulsar.schema import AvroSchema
 
-try:
-    logger.info("🔍 CAMPAÑAS: Importando pulsar...")
-    import pulsar
-    import _pulsar  
-    from pulsar.schema import *
-    import time
-    logger.info("✅ CAMPAÑAS: Pulsar importado exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando pulsar: {e}")
-    raise
+from alpes_partners.api import create_app
+from alpes_partners.seedwork.infraestructura import utils
+from alpes_partners.modulos.influencers.infraestructura.schema.v1.eventos import EventoInfluencerRegistrado
+from alpes_partners.modulos.campanas.aplicacion.comandos.crear_campana import RegistrarCampana, ejecutar_comando_registrar_campana
 
-try:
-    logger.info("🔍 CAMPAÑAS: Importando eventos de influencers...")
-    from alpes_partners.modulos.influencers.infraestructura.schema.v1.eventos import (
-        EventoInfluencerRegistrado,
-        EventoInfluencerActivado,
-        EventoInfluencerDesactivado
-    )
-    logger.info("✅ CAMPAÑAS: Eventos de influencers importados exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando eventos de influencers: {e}")
-    raise
-
-try:
-    logger.info("🔍 CAMPAÑAS: Importando seedwork utils...")
-    from alpes_partners.seedwork.infraestructura import utils
-    logger.info("✅ CAMPAÑAS: Seedwork utils importado exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando seedwork utils: {e}")
-    raise
-
-try:
-    logger.info("🔍 CAMPAÑAS: Importando handler de eventos...")
-    from alpes_partners.modulos.campanas.aplicacion.handlers.eventos_influencers import HandlerEventosInfluencers
-    logger.info("✅ CAMPAÑAS: Handler de eventos importado exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando handler de eventos: {e}")
-    raise
-
-try:
-    logger.info("🔍 CAMPAÑAS: Importando UoW...")
-    from alpes_partners.modulos.campanas.infraestructura.uow import UnidadTrabajoCampanas
-    logger.info("✅ CAMPAÑAS: UoW importada exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando UoW: {e}")
-    raise
-
-try:
-    logger.info("🔍 CAMPAÑAS: Importando database...")
-    from alpes_partners.seedwork.infraestructura.database import get_db_session
-    logger.info("✅ CAMPAÑAS: Database importada exitosamente")
-except Exception as e:
-    logger.error(f"❌ CAMPAÑAS: Error importando database: {e}")
-    raise
-
-logger.info("🎉 CAMPAÑAS: Todos los imports del consumidor completados exitosamente")
+# Crear instancia de aplicación Flask para el contexto
+app = create_app({'TESTING': False})
 
 
-def suscribirse_a_eventos_influencers_desde_campañas():
+def suscribirse_a_eventos_influencers_desde_campanas():
     """
-    Suscribirse a eventos de influencers desde el módulo de CAMPAÑAS.
-    Este consumidor procesa eventos de influencers para crear campañas automáticamente.
+    Suscribirse a eventos de influencers para crear campanas automáticamente.
     """
     cliente = None
     try:
-        logger.info("🔌 CAMPAÑAS: Conectando a eventos de influencers...")
+        logger.info("🔌 CAMPAnAS: Conectando a Pulsar...")
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
         
-        # Consumidor para eventos de influencers desde campañas
-        consumidor_eventos = cliente.subscribe(
+        # Consumidor para eventos de influencers
+        consumidor = cliente.subscribe(
             'eventos-influencers', 
             consumer_type=_pulsar.ConsumerType.Shared,
-            subscription_name='campañas-sub-eventos-influencers', 
+            subscription_name='campanas-sub-eventos-influencers', 
             schema=AvroSchema(EventoInfluencerRegistrado)
         )
 
-        logger.info("✅ CAMPAÑAS: Suscrito a eventos de influencers")
-        logger.info("🎯 CAMPAÑAS: Esperando eventos para procesar en contexto de campañas...")
+        logger.info("✅ CAMPAnAS: Suscrito a eventos de influencers")
+        logger.info("🎯 CAMPAnAS: Esperando eventos...")
         
         while True:
             try:
-                mensaje = consumidor_eventos.receive()
-                logger.info("=" * 80)
-                logger.info(f"📨 CAMPAÑAS: Evento de influencer recibido - {mensaje.value()}")
-                logger.info(f"🏷️ CAMPAÑAS: Procesando en módulo de CAMPAÑAS")
-                logger.info("=" * 80)
+                mensaje = consumidor.receive()
+                logger.info(f"📨 CAMPAnAS: Evento recibido - {mensaje.value()}")
                 
-                # Procesar el evento en el contexto de campañas
-                evento = mensaje.value()
-                procesar_evento_influencer_en_campañas(evento)
+                # Procesar evento
+                _procesar_evento_influencer(mensaje.value())
                 
                 # Confirmar procesamiento
-                consumidor_eventos.acknowledge(mensaje)
-                logger.info("✅ CAMPAÑAS 1: Evento procesado y confirmado desde CAMPAÑAS")
-                logger.info("=" * 80)
+                consumidor.acknowledge(mensaje)
+                logger.info("✅ CAMPAnAS: Evento procesado y confirmado")
                 
             except Exception as e:
-                logger.error(f"❌ CAMPAÑAS 3: Error procesando evento en CAMPAÑAS: {e}")
-                # En producción, implementar retry logic o dead letter queue
-                time.sleep(5)
+                logger.error(f"❌ CAMPAnAS: Error procesando evento: {e}")
+                time.sleep(5)  # Esperar antes de continuar
                 
     except Exception as e:
-        logger.error(f"❌ CAMPAÑAS 2: Error en consumidor de eventos de CAMPAÑAS: {e}")
+        logger.error(f"❌ CAMPAnAS: Error en consumidor: {e}")
     finally:
         if cliente:
             cliente.close()
 
 
-def procesar_evento_influencer_en_campañas(evento):
+def _procesar_evento_influencer(evento):
     """
-    Procesa eventos de influencers recibidos en el contexto del módulo de CAMPAÑAS.
-    Siguiendo el patrón simple de influencers - sin UoW compleja, solo procesamiento directo.
+    Procesa un evento de influencer y crea una campana automáticamente.
     """
-    logger.info(f"🔄 CAMPAÑAS: Procesando evento de influencer en CAMPAÑAS - Tipo: {type(evento).__name__}")
-    
-    try:
-        # Importar usando paths absolutos para evitar errores de módulo
-        logger.info("🏷️ CAMPAÑAS 111x: Importando handler...")
-        logger.info("🏷️ CAMPAÑAS 2x: Creando UoW y handler...")
-        
-        # Crear handler con UoW como influencers
-        with next(get_db_session()) as session:
-            with UnidadTrabajoCampanas(session) as uow:
-                handler = HandlerEventosInfluencers(uow)
-                logger.info("🏷️ CAMPAÑAS 3x: Handler creado exitosamente")
-                
-                # Convertir evento a diccionario
-                evento_dict = _convertir_evento_a_dict(evento)
-                logger.info("🏷️ CAMPAÑAS 4x: Evento convertido a dict")
-                
-                # Extraer tipo de evento - usar nombre de clase que sabemos que funciona
-                tipo_evento = type(evento).__name__
-                logger.info(f"🏷️ CAMPAÑAS 5x: Tipo de evento desde clase: '{tipo_evento}'")
-                
-                # Procesar según el tipo
-                if tipo_evento and ('InfluencerRegistrado' in tipo_evento or tipo_evento == 'InfluencerRegistrado'):
-                    logger.info("🎯 CAMPAÑAS: Procesando InfluencerRegistrado en contexto de campañas")
-                    handler.handle_influencer_registrado(evento_dict)
-                    
-                elif tipo_evento and ('InfluencerActivado' in tipo_evento or tipo_evento == 'InfluencerActivado'):
-                    logger.info("🎯 CAMPAÑAS: Procesando InfluencerActivado en contexto de campañas")
-                    handler.handle_influencer_activado(evento_dict)
-                    
-                elif tipo_evento and ('InfluencerDesactivado' in tipo_evento or tipo_evento == 'InfluencerDesactivado'):
-                    logger.info("🎯 CAMPAÑAS: Procesando InfluencerDesactivado en contexto de campañas")
-                    handler.handle_influencer_desactivado(evento_dict)
-                else:
-                    logger.warning(f"⚠️ CAMPAÑAS: Evento sin tipo específico reconocido: '{tipo_evento}'")
-                
-                # La UoW se commitea automáticamente al salir del context manager
+    with app.app_context():
+        try:
+            # Extraer datos del evento
+            datos = _extraer_datos_evento(evento)
             
-    except Exception as e:
-        logger.error(f"❌ CAMPAÑAS: Error procesando evento: {e}")
-        # No re-lanzar para no afectar el flujo principal
+            # Solo procesar eventos de registro de influencers
+            if not _es_evento_registro(evento):
+                logger.info(f"🔍 CAMPAnAS: Evento ignorado - Tipo: {type(evento).__name__}")
+                return
             
-    logger.info("✅ CAMPAÑAS: Evento de influencer procesado exitosamente en CAMPAÑAS")
+            logger.info("🎯 CAMPAnAS: Procesando registro de influencer para crear campana")
+            
+            # Crear comando para registrar campana
+            comando = _crear_comando_campana(datos)
+            
+            # Ejecutar comando usando la función específica del módulo
+            ejecutar_comando_registrar_campana(comando)
+            
+            logger.info(f"✅ CAMPAnAS: Campana creada para influencer: {datos.get('nombre', 'N/A')}")
+            
+        except Exception as e:
+            logger.error(f"❌ CAMPAnAS: Error procesando evento: {e}")
+            import traceback
+            logger.error(f"❌ CAMPAnAS: Traceback: {traceback.format_exc()}")
 
 
-def _convertir_evento_a_dict(evento):
-    """Convierte un evento a diccionario para el handler."""
-    evento_dict = {}
+def _es_evento_registro(evento):
+    """
+    Verifica si el evento es un registro de influencer.
+    """
+    tipo_evento = type(evento).__name__
+    return 'InfluencerRegistrado' in tipo_evento
+
+
+def _extraer_datos_evento(evento):
+    """
+    Extrae los datos relevantes del evento.
+    """
+    datos = {}
     
-    try:
-        logger.info(f"🔍 CAMPAÑAS: Convirtiendo evento - Tipo: {type(evento).__name__}")
+    if hasattr(evento, 'data'):
+        data = evento.data
         
-        # Extraer datos del payload
-        if hasattr(evento, 'data'):
-            data = evento.data
-            logger.info(f"🔍 CAMPAÑAS: Datos encontrados - Tipo: {type(data).__name__}")
-            
-            # Intentar diferentes formas de extraer los datos
-            if hasattr(data, '__dict__'):
-                logger.info("🔍 CAMPAÑAS: Extrayendo datos via __dict__")
-                evento_dict.update(data.__dict__)
-            elif hasattr(data, '_asdict'):
-                logger.info("🔍 CAMPAÑAS: Extrayendo datos via _asdict")
-                evento_dict.update(data._asdict())
-            else:
-                # Intentar acceder a campos conocidos directamente
-                logger.info("🔍 CAMPAÑAS: Extrayendo datos via campos directos")
-                if hasattr(data, 'id_influencer'):
-                    evento_dict['id_influencer'] = str(data.id_influencer)
-                if hasattr(data, 'nombre'):
-                    evento_dict['nombre'] = str(data.nombre)
-                if hasattr(data, 'email'):
-                    evento_dict['email'] = str(data.email)
-                if hasattr(data, 'categorias'):
-                    evento_dict['categorias'] = [str(cat) for cat in data.categorias] if data.categorias else []
-                if hasattr(data, 'fecha_registro'):
-                    # Manejar el objeto Long de Pulsar correctamente
-                    try:
-                        if data.fecha_registro is not None:
-                            if hasattr(data.fecha_registro, '__int__'):
-                                evento_dict['fecha_registro'] = int(data.fecha_registro)
-                            else:
-                                evento_dict['fecha_registro'] = int(str(data.fecha_registro))
-                        else:
-                            evento_dict['fecha_registro'] = None
-                    except (ValueError, TypeError) as e:
-                        logger.warning(f"⚠️ CAMPAÑAS: No se pudo convertir fecha_registro: {e}")
-                        evento_dict['fecha_registro'] = None
-        
-        # Agregar campos del evento principal
-        if hasattr(evento, 'type'):
-            evento_dict['tipo_evento'] = str(evento.type) if evento.type else None
-        if hasattr(evento, 'id'):
-            evento_dict['evento_id'] = str(evento.id) if evento.id else None
-        if hasattr(evento, 'time'):
-            # Manejar el objeto Long de Pulsar correctamente
-            try:
-                if evento.time is not None:
-                    # Intentar convertir el objeto Long de Pulsar
-                    if hasattr(evento.time, '__int__'):
-                        evento_dict['timestamp'] = int(evento.time)
-                    else:
-                        evento_dict['timestamp'] = int(str(evento.time))
-                else:
-                    evento_dict['timestamp'] = None
-            except (ValueError, TypeError) as e:
-                logger.warning(f"⚠️ CAMPAÑAS: No se pudo convertir timestamp: {e}")
-                evento_dict['timestamp'] = None
-        
-        logger.info(f"🔍 CAMPAÑAS: Evento convertido - Claves: {list(evento_dict.keys())}")
-        logger.info(f"🔍 CAMPAÑAS: Datos del influencer: ID={evento_dict.get('id_influencer')}, Nombre={evento_dict.get('nombre')}, Categorías={evento_dict.get('categorias')}")
-            
-    except Exception as e:
-        logger.error(f"❌ CAMPAÑAS: Error convirtiendo evento a dict: {e}")
-        import traceback
-        logger.error(f"❌ CAMPAÑAS: Traceback: {traceback.format_exc()}")
+        # Extraer campos conocidos
+        if hasattr(data, 'id_influencer'):
+            datos['id_influencer'] = str(data.id_influencer)
+        if hasattr(data, 'nombre'):
+            datos['nombre'] = str(data.nombre)
+        if hasattr(data, 'email'):
+            datos['email'] = str(data.email)
+        if hasattr(data, 'categorias'):
+            datos['categorias'] = [str(cat) for cat in data.categorias] if data.categorias else []
     
-    return evento_dict
+    return datos
+
+
+def _crear_comando_campana(datos):
+    """
+    Crea el comando para registrar una campana basada en los datos del influencer.
+    """
+    fecha_actual = datetime.utcnow()
+    campana_id = str(uuid.uuid4())
+    
+    return RegistrarCampana(
+        fecha_creacion=fecha_actual.isoformat(),
+        fecha_actualizacion=fecha_actual.isoformat(),
+        id=campana_id,
+        nombre=f"Campana de {datos.get('nombre', 'Influencer')}",
+        descripcion=f"Campana generada automáticamente para el influencer {datos.get('nombre', 'N/A')}",
+        tipo_comision="cpa",
+        valor_comision=10.0,
+        moneda="USD",
+        fecha_inicio=fecha_actual.isoformat(),
+        categorias_objetivo=datos.get('categorias', []),
+        tipos_afiliado_permitidos=["influencer"],
+        enlaces_material=[],
+        imagenes_material=[],
+        banners_material=[],
+        metricas_minimas={},
+        auto_activar=True,
+        influencer_origen_id=datos.get('id_influencer')
+    )

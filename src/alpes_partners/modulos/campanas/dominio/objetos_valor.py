@@ -11,8 +11,8 @@ class TipoComision(Enum):
     CPC = "cpc"  # Cost Per Click (por clic)
 
 
-class EstadoCampaña(Enum):
-    """Estados posibles de una campaña."""
+class EstadoCampana(Enum):
+    """Estados posibles de una campana."""
     BORRADOR = "borrador"
     ACTIVA = "activa"
     PAUSADA = "pausada"
@@ -21,7 +21,7 @@ class EstadoCampaña(Enum):
 
 
 class TerminosComision(ObjetoValor):
-    """Términos de comisión para una campaña."""
+    """Términos de comisión para una campana."""
     
     def __init__(self, 
                  tipo: TipoComision,
@@ -35,8 +35,8 @@ class TerminosComision(ObjetoValor):
             raise ValueError("El valor de la comisión debe ser mayor a 0")
 
 
-class PeriodoCampaña(ObjetoValor):
-    """Período de vigencia de una campaña."""
+class PeriodoCampana(ObjetoValor):
+    """Período de vigencia de una campana."""
     
     def __init__(self, 
                  fecha_inicio: datetime,
@@ -48,7 +48,7 @@ class PeriodoCampaña(ObjetoValor):
             raise ValueError("La fecha de fin debe ser posterior a la fecha de inicio")
     
     def esta_activa(self, fecha_actual: Optional[datetime] = None) -> bool:
-        """Verifica si la campaña está en período activo."""
+        """Verifica si la campana está en período activo."""
         if fecha_actual is None:
             fecha_actual = datetime.utcnow()
         
@@ -62,7 +62,7 @@ class PeriodoCampaña(ObjetoValor):
 
 
 class MaterialPromocional(ObjetoValor):
-    """Material promocional de la campaña."""
+    """Material promocional de la campana."""
     
     def __init__(self, 
                  titulo: str,
@@ -97,8 +97,8 @@ class CriteriosAfiliado(ObjetoValor):
         self.metricas_minimas = metricas_minimas or {}
 
 
-class MetricasCampaña(ObjetoValor):
-    """Métricas de rendimiento de la campaña."""
+class MetricasCampana(ObjetoValor):
+    """Métricas de rendimiento de la campana."""
     
     def __init__(self, 
                  afiliados_asignados: int = 0,
@@ -113,7 +113,7 @@ class MetricasCampaña(ObjetoValor):
         self.ingresos_generados = max(0.0, ingresos_generados)
     
     def calcular_roi(self) -> float:
-        """Calcula el ROI de la campaña."""
+        """Calcula el ROI de la campana."""
         if self.inversion_total == 0:
             return 0.0
         return ((self.ingresos_generados - self.inversion_total) / self.inversion_total) * 100

@@ -33,33 +33,38 @@ def suscribirse_a_eventos_influencers():
         logger.info("🔌 PULSAR: Conectando a eventos de influencers...")
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
         
-        # Consumidor para eventos de influencers registrados
-        consumidor_registrados = cliente.subscribe(
-            'eventos-influencers', 
-            consumer_type=_pulsar.ConsumerType.Shared,
-            subscription_name='alpes-partners-sub-eventos-influencers', 
-            schema=AvroSchema(EventoInfluencerRegistrado)
-        )
-
-        logger.info("✅ PULSAR: Suscrito a eventos de influencers")
+        # NOTA: Los eventos de influencers son consumidos por OTROS módulos (como campanas)
+        # Un módulo no debería suscribirse a sus propios eventos para evitar procesamiento duplicado
+        # Comentado para evitar conflictos:
+        #
+        # consumidor_registrados = cliente.subscribe(
+        #     'eventos-influencers', 
+        #     consumer_type=_pulsar.ConsumerType.Shared,
+        #     subscription_name='alpes-partners-sub-eventos-influencers', 
+        #     schema=AvroSchema(EventoInfluencerRegistrado)
+        # )
         
-        while True:
-            try:
-                mensaje = consumidor_registrados.receive()
-                logger.info(f"📨 PULSAR: Evento recibido - {mensaje.value()}")
-                
-                # Procesar el evento aquí
-                evento = mensaje.value()
-                procesar_evento_influencer(evento)
-                
-                # Confirmar procesamiento
-                consumidor_registrados.acknowledge(mensaje)
-                logger.info("✅ PULSAR: Evento procesado y confirmado")
-                
-            except Exception as e:
-                logger.error(f"❌ PULSAR: Error procesando evento: {e}")
-                # En producción, implementar retry logic o dead letter queue
-                time.sleep(5)
+        logger.info("ℹ️ PULSAR: Módulo de influencers NO se suscribe a sus propios eventos")
+        logger.info("ℹ️ PULSAR: Los eventos son procesados por otros módulos (campanas, etc.)")
+        
+        # Bucle comentado - ya no procesamos nuestros propios eventos:
+        # while True:
+        #     try:
+        #         mensaje = consumidor_registrados.receive()
+        #         logger.info(f"📨 PULSAR: Evento recibido - {mensaje.value()}")
+        #         
+        #         # Procesar el evento aquí
+        #         evento = mensaje.value()
+        #         procesar_evento_influencer(evento)
+        #         
+        #         # Confirmar procesamiento
+        #         consumidor_registrados.acknowledge(mensaje)
+        #         logger.info("✅ PULSAR: Evento procesado y confirmado")
+        #         
+        #     except Exception as e:
+        #         logger.error(f"❌ PULSAR: Error procesando evento: {e}")
+        #         # En producción, implementar retry logic o dead letter queue
+        #         time.sleep(5)
                 
     except Exception as e:
         logger.error(f"❌ PULSAR: Error en consumidor de eventos: {e}")

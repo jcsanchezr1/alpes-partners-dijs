@@ -88,11 +88,11 @@ class MetricasInfluencerActualizadas(EventoDominio):
     
     def __init__(self, 
                  influencer_id: str,
-                 campañas_completadas: int,
+                 campanas_completadas: int,
                  ingresos_generados: float,
                  fecha_actualizacion: datetime):
         super().__init__()
         self.influencer_id = influencer_id
-        self.campañas_completadas = campañas_completadas
+        self.campanas_completadas = campanas_completadas
         self.ingresos_generados = ingresos_generados
         self.fecha_actualizacion = fecha_actualizacion

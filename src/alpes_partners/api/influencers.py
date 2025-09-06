@@ -158,7 +158,7 @@ def listar_influencers():
                 'plataformas': getattr(influencer_dto, 'plataformas', []),
                 'total_seguidores': getattr(influencer_dto, 'total_seguidores', 0),
                 'engagement_promedio': getattr(influencer_dto, 'engagement_promedio', 0.0),
-                'campañas_completadas': getattr(influencer_dto, 'campañas_completadas', 0),
+                'campanas_completadas': getattr(influencer_dto, 'campanas_completadas', 0),
                 'cpm_promedio': getattr(influencer_dto, 'cpm_promedio', 0.0),
                 'ingresos_generados': getattr(influencer_dto, 'ingresos_generados', 0.0)
             })

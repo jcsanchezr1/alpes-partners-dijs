@@ -4,23 +4,23 @@ from alpes_partners.seedwork.dominio.entidades import AgregacionRaiz
 from alpes_partners.seedwork.dominio.objetos_valor import Dinero
 from alpes_partners.seedwork.dominio.excepciones import ExcepcionReglaDeNegocio, ExcepcionEstadoInvalido
 from .objetos_valor import (
-    TipoComision, EstadoCampaña, TerminosComision, PeriodoCampaña,
-    MaterialPromocional, CriteriosAfiliado, MetricasCampaña
+    TipoComision, EstadoCampana, TerminosComision, PeriodoCampana,
+    MaterialPromocional, CriteriosAfiliado, MetricasCampana
 )
 from .eventos import (
-    CampañaCreada, CampañaActivada, AfiliadoAsignadoACampaña,
-    CampañaPausada, TerminosCampañaActualizados
+    CampanaCreada, CampanaActivada, AfiliadoAsignadoACampana,
+    CampanaPausada, TerminosCampanaActualizados
 )
 
 
-class Campaña(AgregacionRaiz):
-    """Agregado raíz para Campaña."""
+class Campana(AgregacionRaiz):
+    """Agregado raíz para Campana."""
     
     def __init__(self, 
                  nombre: str,
                  descripcion: str,
                  terminos_comision: TerminosComision,
-                 periodo: PeriodoCampaña,
+                 periodo: PeriodoCampana,
                  material_promocional: MaterialPromocional,
                  criterios_afiliado: CriteriosAfiliado,
                  id: Optional[str] = None):
@@ -31,22 +31,22 @@ class Campaña(AgregacionRaiz):
         self.periodo = periodo
         self.material_promocional = material_promocional
         self.criterios_afiliado = criterios_afiliado
-        self.estado = EstadoCampaña.BORRADOR
-        self.metricas = MetricasCampaña()
+        self.estado = EstadoCampana.BORRADOR
+        self.metricas = MetricasCampana()
         self.afiliados_asignados: Set[str] = set()
         self.fecha_activacion: Optional[datetime] = None
         self.fecha_pausa: Optional[datetime] = None
         
         # Validaciones
         if not self.nombre:
-            raise ExcepcionReglaDeNegocio("El nombre de la campaña es requerido")
+            raise ExcepcionReglaDeNegocio("El nombre de la campana es requerido")
         
         if not self.descripcion:
-            raise ExcepcionReglaDeNegocio("La descripción de la campaña es requerida")
+            raise ExcepcionReglaDeNegocio("La descripción de la campana es requerida")
         
         # Emitir evento de creación
-        self.agregar_evento(CampañaCreada(
-            campaña_id=self.id,
+        self.agregar_evento(CampanaCreada(
+            campana_id=self.id,
             nombre=self.nombre,
             descripcion=self.descripcion,
             tipo_comision=self.terminos_comision.tipo,
@@ -69,13 +69,13 @@ class Campaña(AgregacionRaiz):
               titulo_material: str = "",
               descripcion_material: str = "",
               categorias_objetivo: List[str] = None,
-              tipos_afiliado_permitidos: List[str] = None) -> 'Campaña':
-        """Factory method para crear una campaña."""
+              tipos_afiliado_permitidos: List[str] = None) -> 'Campana':
+        """Factory method para crear una campana."""
         
         # Crear objetos valor
         dinero_comision = Dinero(valor_comision, moneda)
         terminos = TerminosComision(tipo_comision, dinero_comision)
-        periodo = PeriodoCampaña(fecha_inicio, fecha_fin)
+        periodo = PeriodoCampana(fecha_inicio, fecha_fin)
         
         # Material promocional básico
         material = MaterialPromocional(
@@ -99,83 +99,83 @@ class Campaña(AgregacionRaiz):
         )
     
     def activar(self) -> None:
-        """Activa la campaña."""
-        if self.estado == EstadoCampaña.ACTIVA:
-            raise ExcepcionEstadoInvalido("La campaña ya está activa")
+        """Activa la campana."""
+        if self.estado == EstadoCampana.ACTIVA:
+            raise ExcepcionEstadoInvalido("La campana ya está activa")
         
-        if self.estado in [EstadoCampaña.FINALIZADA, EstadoCampaña.CANCELADA]:
-            raise ExcepcionEstadoInvalido("No se puede activar una campaña finalizada o cancelada")
+        if self.estado in [EstadoCampana.FINALIZADA, EstadoCampana.CANCELADA]:
+            raise ExcepcionEstadoInvalido("No se puede activar una campana finalizada o cancelada")
         
         # Verificar que esté en período válido
         if not self.periodo.esta_activa():
-            raise ExcepcionReglaDeNegocio("No se puede activar una campaña fuera de su período de vigencia")
+            raise ExcepcionReglaDeNegocio("No se puede activar una campana fuera de su período de vigencia")
         
-        self.estado = EstadoCampaña.ACTIVA
+        self.estado = EstadoCampana.ACTIVA
         self.fecha_activacion = datetime.utcnow()
         self.incrementar_version()
         
         # Emitir evento
-        self.agregar_evento(CampañaActivada(
-            campaña_id=self.id,
+        self.agregar_evento(CampanaActivada(
+            campana_id=self.id,
             nombre=self.nombre,
             fecha_activacion=self.fecha_activacion
         ))
     
     def pausar(self, motivo: str) -> None:
-        """Pausa la campaña."""
-        if self.estado != EstadoCampaña.ACTIVA:
-            raise ExcepcionEstadoInvalido("Solo se pueden pausar campañas activas")
+        """Pausa la campana."""
+        if self.estado != EstadoCampana.ACTIVA:
+            raise ExcepcionEstadoInvalido("Solo se pueden pausar campanas activas")
         
         if not motivo.strip():
             raise ExcepcionReglaDeNegocio("El motivo de pausa es requerido")
         
-        self.estado = EstadoCampaña.PAUSADA
+        self.estado = EstadoCampana.PAUSADA
         self.fecha_pausa = datetime.utcnow()
         self.incrementar_version()
         
         # Emitir evento
-        self.agregar_evento(CampañaPausada(
-            campaña_id=self.id,
+        self.agregar_evento(CampanaPausada(
+            campana_id=self.id,
             motivo=motivo,
             fecha_pausa=self.fecha_pausa
         ))
     
     def reanudar(self) -> None:
-        """Reanuda una campaña pausada."""
-        if self.estado != EstadoCampaña.PAUSADA:
-            raise ExcepcionEstadoInvalido("Solo se pueden reanudar campañas pausadas")
+        """Reanuda una campana pausada."""
+        if self.estado != EstadoCampana.PAUSADA:
+            raise ExcepcionEstadoInvalido("Solo se pueden reanudar campanas pausadas")
         
         # Verificar que esté en período válido
         if not self.periodo.esta_activa():
-            raise ExcepcionReglaDeNegocio("No se puede reanudar una campaña fuera de su período de vigencia")
+            raise ExcepcionReglaDeNegocio("No se puede reanudar una campana fuera de su período de vigencia")
         
-        self.estado = EstadoCampaña.ACTIVA
+        self.estado = EstadoCampana.ACTIVA
         self.fecha_pausa = None
         self.incrementar_version()
     
     def finalizar(self) -> None:
-        """Finaliza la campaña."""
-        if self.estado == EstadoCampaña.FINALIZADA:
-            raise ExcepcionEstadoInvalido("La campaña ya está finalizada")
+        """Finaliza la campana."""
+        if self.estado == EstadoCampana.FINALIZADA:
+            raise ExcepcionEstadoInvalido("La campana ya está finalizada")
         
-        if self.estado == EstadoCampaña.CANCELADA:
-            raise ExcepcionEstadoInvalido("No se puede finalizar una campaña cancelada")
+        if self.estado == EstadoCampana.CANCELADA:
+            raise ExcepcionEstadoInvalido("No se puede finalizar una campana cancelada")
         
-        self.estado = EstadoCampaña.FINALIZADA
+        self.estado = EstadoCampana.FINALIZADA
         self.incrementar_version()
     
     def asignar_afiliado(self, afiliado_id: str, nombre_afiliado: str) -> None:
-        """Asigna un afiliado a la campaña."""
-        if self.estado != EstadoCampaña.ACTIVA:
-            raise ExcepcionEstadoInvalido("Solo se pueden asignar afiliados a campañas activas")
+        """Asigna un afiliado a la campana."""
+        if self.estado != EstadoCampana.ACTIVA:
+            raise ExcepcionEstadoInvalido("Solo se pueden asignar afiliados a campanas activas")
         
         if afiliado_id in self.afiliados_asignados:
-            raise ExcepcionReglaDeNegocio("El afiliado ya está asignado a esta campaña")
+            raise ExcepcionReglaDeNegocio("El afiliado ya está asignado a esta campana")
         
         self.afiliados_asignados.add(afiliado_id)
         
         # Actualizar métricas
-        nueva_metricas = MetricasCampaña(
+        nueva_metricas = MetricasCampana(
             afiliados_asignados=len(self.afiliados_asignados),
             clics_totales=self.metricas.clics_totales,
             conversiones_totales=self.metricas.conversiones_totales,
@@ -186,23 +186,23 @@ class Campaña(AgregacionRaiz):
         self.incrementar_version()
         
         # Emitir evento
-        self.agregar_evento(AfiliadoAsignadoACampaña(
-            campaña_id=self.id,
+        self.agregar_evento(AfiliadoAsignadoACampana(
+            campana_id=self.id,
             afiliado_id=afiliado_id,
-            nombre_campaña=self.nombre,
+            nombre_campana=self.nombre,
             nombre_afiliado=nombre_afiliado,
             fecha_asignacion=datetime.utcnow()
         ))
     
     def remover_afiliado(self, afiliado_id: str) -> None:
-        """Remueve un afiliado de la campaña."""
+        """Remueve un afiliado de la campana."""
         if afiliado_id not in self.afiliados_asignados:
-            raise ExcepcionReglaDeNegocio("El afiliado no está asignado a esta campaña")
+            raise ExcepcionReglaDeNegocio("El afiliado no está asignado a esta campana")
         
         self.afiliados_asignados.remove(afiliado_id)
         
         # Actualizar métricas
-        nueva_metricas = MetricasCampaña(
+        nueva_metricas = MetricasCampana(
             afiliados_asignados=len(self.afiliados_asignados),
             clics_totales=self.metricas.clics_totales,
             conversiones_totales=self.metricas.conversiones_totales,
@@ -216,8 +216,8 @@ class Campaña(AgregacionRaiz):
                            nuevo_valor_comision: Optional[float] = None,
                            nueva_descripcion_comision: Optional[str] = None) -> None:
         """Actualiza los términos de comisión."""
-        if self.estado == EstadoCampaña.FINALIZADA:
-            raise ExcepcionEstadoInvalido("No se pueden actualizar términos de una campaña finalizada")
+        if self.estado == EstadoCampana.FINALIZADA:
+            raise ExcepcionEstadoInvalido("No se pueden actualizar términos de una campana finalizada")
         
         cambios = {}
         
@@ -238,15 +238,15 @@ class Campaña(AgregacionRaiz):
             self.incrementar_version()
             
             # Emitir evento
-            self.agregar_evento(TerminosCampañaActualizados(
-                campaña_id=self.id,
+            self.agregar_evento(TerminosCampanaActualizados(
+                campana_id=self.id,
                 cambios_realizados=cambios,
                 fecha_actualizacion=datetime.utcnow()
             ))
     
     def puede_asignar_afiliado(self, categorias_afiliado: List[str], tipo_afiliado: str) -> bool:
-        """Verifica si un afiliado puede ser asignado a esta campaña."""
-        if self.estado != EstadoCampaña.ACTIVA:
+        """Verifica si un afiliado puede ser asignado a esta campana."""
+        if self.estado != EstadoCampana.ACTIVA:
             return False
         
         # Verificar tipos permitidos
@@ -267,8 +267,8 @@ class Campaña(AgregacionRaiz):
                            conversiones: int = 0,
                            inversion: float = 0.0,
                            ingresos: float = 0.0) -> None:
-        """Actualiza las métricas de la campaña."""
-        nueva_metricas = MetricasCampaña(
+        """Actualiza las métricas de la campana."""
+        nueva_metricas = MetricasCampana(
             afiliados_asignados=self.metricas.afiliados_asignados,
             clics_totales=self.metricas.clics_totales + clics,
             conversiones_totales=self.metricas.conversiones_totales + conversiones,
@@ -278,3 +278,19 @@ class Campaña(AgregacionRaiz):
         
         self.metricas = nueva_metricas
         self.incrementar_version()
+    
+    def crear_campana(self, campana: 'Campana') -> None:
+        """Método para crear la campana y emitir el evento correspondiente."""
+        # Emitir evento de creación
+        from .eventos import CampanaCreada
+        self.agregar_evento(CampanaCreada(
+            campana_id=self.id,
+            nombre=self.nombre,
+            descripcion=self.descripcion,
+            tipo_comision=self.terminos_comision.tipo,
+            valor_comision=self.terminos_comision.valor.cantidad,
+            moneda=self.terminos_comision.valor.moneda,
+            categorias_objetivo=self.criterios_afiliado.categorias_requeridas,
+            fecha_inicio=self.periodo.fecha_inicio,
+            fecha_fin=self.periodo.fecha_fin
+        ))

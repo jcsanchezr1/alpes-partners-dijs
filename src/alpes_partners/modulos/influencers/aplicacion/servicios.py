@@ -96,7 +96,7 @@ class ServicioInfluencer:
             total_seguidores=influencer.obtener_total_seguidores(),
             engagement_promedio=influencer.metricas.engagement_promedio,
             tipo_principal=tipo_principal,
-            campañas_completadas=influencer.metricas.campañas_completadas,
+            campanas_completadas=influencer.metricas.campanas_completadas,
             cpm_promedio=influencer.metricas.cpm_promedio,
             ingresos_generados=influencer.metricas.ingresos_generados,
             demografia=demografia_dto

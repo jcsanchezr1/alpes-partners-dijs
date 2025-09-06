@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     
     # Eventos
     eventos_topico_afiliados: str = "afiliados"
-    eventos_topico_campañas: str = "campañas"
+    eventos_topico_campanas: str = "campanas"
     
     # Logging
     log_level: str = "INFO"

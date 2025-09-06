@@ -1,6 +1,6 @@
 """
-Plantillas de campañas por categoría de influencer.
-Define las campañas automáticas que se crean según la categoría del influencer.
+Plantillas de campanas por categoría de influencer.
+Define las campanas automáticas que se crean según la categoría del influencer.
 """
 
 from datetime import datetime, timedelta
@@ -9,7 +9,7 @@ from .objetos_valor import TipoComision
 
 
 class PlantillaCampana:
-    """Plantilla para crear campañas automáticamente."""
+    """Plantilla para crear campanas automáticamente."""
     
     def __init__(self,
                  nombre_template: str,
@@ -39,11 +39,11 @@ class PlantillaCampana:
         self.metricas_minimas = metricas_minimas or {}
     
     def generar_nombre(self, nombre_influencer: str) -> str:
-        """Genera el nombre de la campaña basado en el influencer."""
+        """Genera el nombre de la campana basado en el influencer."""
         return self.nombre_template.format(influencer=nombre_influencer)
     
     def generar_descripcion(self, nombre_influencer: str, categoria: str) -> str:
-        """Genera la descripción de la campaña."""
+        """Genera la descripción de la campana."""
         return self.descripcion_template.format(
             influencer=nombre_influencer,
             categoria=categoria
@@ -51,15 +51,15 @@ class PlantillaCampana:
 
 
 class GeneradorCampanasPorCategoria:
-    """Generador de campañas automáticas basadas en categorías de influencers."""
+    """Generador de campanas automáticas basadas en categorías de influencers."""
     
-    # Plantillas de campañas por categoría
+    # Plantillas de campanas por categoría
     PLANTILLAS_POR_CATEGORIA: Dict[str, PlantillaCampana] = {
         
         # Tecnología
         "tecnologia": PlantillaCampana(
             nombre_template="Tech Innovation - {influencer}",
-            descripcion_template="Campaña de productos tecnológicos innovadores para {influencer} especializado en {categoria}",
+            descripcion_template="Campana de productos tecnológicos innovadores para {influencer} especializado en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=50.0,
             duracion_dias=45,
@@ -76,7 +76,7 @@ class GeneradorCampanasPorCategoria:
         # Lifestyle
         "lifestyle": PlantillaCampana(
             nombre_template="Lifestyle Essentials - {influencer}",
-            descripcion_template="Campaña de productos lifestyle y bienestar para {influencer} en {categoria}",
+            descripcion_template="Campana de productos lifestyle y bienestar para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPL,
             valor_comision=25.0,
             duracion_dias=60,
@@ -93,7 +93,7 @@ class GeneradorCampanasPorCategoria:
         # Moda
         "moda": PlantillaCampana(
             nombre_template="Fashion Forward - {influencer}",
-            descripcion_template="Campaña de moda y tendencias para {influencer} especializado en {categoria}",
+            descripcion_template="Campana de moda y tendencias para {influencer} especializado en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=35.0,
             duracion_dias=30,
@@ -110,7 +110,7 @@ class GeneradorCampanasPorCategoria:
         # Fitness
         "fitness": PlantillaCampana(
             nombre_template="Fitness Revolution - {influencer}",
-            descripcion_template="Campaña de productos fitness y nutrición para {influencer} en {categoria}",
+            descripcion_template="Campana de productos fitness y nutrición para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=40.0,
             duracion_dias=90,
@@ -127,7 +127,7 @@ class GeneradorCampanasPorCategoria:
         # Belleza
         "belleza": PlantillaCampana(
             nombre_template="Beauty Secrets - {influencer}",
-            descripcion_template="Campaña de productos de belleza y cuidado personal para {influencer} en {categoria}",
+            descripcion_template="Campana de productos de belleza y cuidado personal para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPL,
             valor_comision=30.0,
             duracion_dias=45,
@@ -144,7 +144,7 @@ class GeneradorCampanasPorCategoria:
         # Gastronomía
         "gastronomia": PlantillaCampana(
             nombre_template="Culinary Experience - {influencer}",
-            descripcion_template="Campaña gastronómica y productos culinarios para {influencer} especializado en {categoria}",
+            descripcion_template="Campana gastronómica y productos culinarios para {influencer} especializado en {categoria}",
             tipo_comision=TipoComision.CPC,
             valor_comision=15.0,
             duracion_dias=60,
@@ -161,7 +161,7 @@ class GeneradorCampanasPorCategoria:
         # Viajes
         "viajes": PlantillaCampana(
             nombre_template="Travel Adventures - {influencer}",
-            descripcion_template="Campaña de experiencias de viaje y productos para viajeros para {influencer} en {categoria}",
+            descripcion_template="Campana de experiencias de viaje y productos para viajeros para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=60.0,
             duracion_dias=120,
@@ -178,7 +178,7 @@ class GeneradorCampanasPorCategoria:
         # Gaming
         "gaming": PlantillaCampana(
             nombre_template="Gaming Elite - {influencer}",
-            descripcion_template="Campaña de productos gaming y entretenimiento para {influencer} especializado en {categoria}",
+            descripcion_template="Campana de productos gaming y entretenimiento para {influencer} especializado en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=45.0,
             duracion_dias=60,
@@ -195,7 +195,7 @@ class GeneradorCampanasPorCategoria:
         # Educación
         "educacion": PlantillaCampana(
             nombre_template="Learning Hub - {influencer}",
-            descripcion_template="Campaña de cursos y productos educativos para {influencer} en {categoria}",
+            descripcion_template="Campana de cursos y productos educativos para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPL,
             valor_comision=20.0,
             duracion_dias=90,
@@ -212,7 +212,7 @@ class GeneradorCampanasPorCategoria:
         # Finanzas
         "finanzas": PlantillaCampana(
             nombre_template="Financial Freedom - {influencer}",
-            descripcion_template="Campaña de productos y servicios financieros para {influencer} especializado en {categoria}",
+            descripcion_template="Campana de productos y servicios financieros para {influencer} especializado en {categoria}",
             tipo_comision=TipoComision.CPA,
             valor_comision=80.0,
             duracion_dias=60,
@@ -229,7 +229,7 @@ class GeneradorCampanasPorCategoria:
     
     @classmethod
     def obtener_plantilla(cls, categoria: str) -> PlantillaCampana:
-        """Obtiene la plantilla de campaña para una categoría específica."""
+        """Obtiene la plantilla de campana para una categoría específica."""
         categoria_lower = categoria.lower().strip()
         
         # Buscar coincidencia exacta
@@ -249,7 +249,7 @@ class GeneradorCampanasPorCategoria:
         """Plantilla por defecto para categorías no definidas."""
         return PlantillaCampana(
             nombre_template="General Campaign - {influencer}",
-            descripcion_template="Campaña general de productos y servicios para {influencer} en {categoria}",
+            descripcion_template="Campana general de productos y servicios para {influencer} en {categoria}",
             tipo_comision=TipoComision.CPL,
             valor_comision=25.0,
             duracion_dias=30,
@@ -269,7 +269,7 @@ class GeneradorCampanasPorCategoria:
                                         influencer_id: str,
                                         nombre_influencer: str,
                                         categorias: List[str]) -> List[Dict[str, Any]]:
-        """Genera las campañas para un influencer basado en sus categorías."""
+        """Genera las campanas para un influencer basado en sus categorías."""
         campanas_generadas = []
         
         for categoria in categorias:

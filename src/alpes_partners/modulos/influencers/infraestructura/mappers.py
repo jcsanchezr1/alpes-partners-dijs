@@ -81,7 +81,7 @@ class InfluencerMapper:
             sitio_web=influencer.perfil.sitio_web,
             audiencia_por_plataforma=audiencia_json,
             demografia=demografia_json,
-            campañas_completadas=influencer.metricas.campañas_completadas,
+            campanas_completadas=influencer.metricas.campanas_completadas,
             engagement_promedio=engagement_promedio_calculado,
             cpm_promedio=influencer.metricas.cpm_promedio,
             ingresos_generados=influencer.metricas.ingresos_generados,
@@ -179,7 +179,7 @@ class InfluencerMapper:
         
         # Establecer métricas
         influencer.metricas = MetricasInfluencer(
-            campañas_completadas=modelo.campañas_completadas,
+            campanas_completadas=modelo.campanas_completadas,
             engagement_promedio=modelo.engagement_promedio,
             cpm_promedio=modelo.cpm_promedio,
             ingresos_generados=modelo.ingresos_generados
@@ -243,7 +243,7 @@ class InfluencerMapper:
                 modelo.tipo_principal = TipoInfluencer.CELEBRITY.value
         
         # Actualizar métricas
-        modelo.campañas_completadas = influencer.metricas.campañas_completadas
+        modelo.campanas_completadas = influencer.metricas.campanas_completadas
         modelo.engagement_promedio = (engagement_total / len(influencer.audiencia_por_plataforma)) if influencer.audiencia_por_plataforma else 0.0
         modelo.cpm_promedio = influencer.metricas.cpm_promedio
         modelo.ingresos_generados = influencer.metricas.ingresos_generados

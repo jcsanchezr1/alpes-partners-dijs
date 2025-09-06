@@ -10,10 +10,12 @@ def registrar_handlers():
     """Importa los módulos de aplicación para registrar handlers y comandos."""
     # La importación del módulo de aplicación registra automáticamente los comandos
     import alpes_partners.modulos.influencers.aplicacion
+    import alpes_partners.modulos.campanas.aplicacion
 
 def importar_modelos_alchemy():
     """Importa los DTOs de SQLAlchemy para crear las tablas."""
     import alpes_partners.modulos.influencers.infraestructura.dto
+    import alpes_partners.modulos.campanas.infraestructura.schema.campanas
 
 def comenzar_consumidor():
     """

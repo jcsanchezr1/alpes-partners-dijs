@@ -46,14 +46,13 @@ class ManejadorRegistrarInfluencer(ManejadorComando[RegistrarInfluencer]):
         
         logger.info(f"✅ HANDLER: Influencer creado - ID: {influencer.id}, Eventos: {len(influencer.eventos)}")
         
-        # Agregar al repositorio
-        logger.info(f"🔄 HANDLER: Llamando repositorio.agregar()...")
-        self.repositorio.agregar(influencer)
-        logger.info(f"✅ HANDLER: Repositorio.agregar() completado")
+        # Agregar al repositorio usando UoW
+        logger.info(f"🔄 HANDLER: Registrando operación en UoW...")
+        self.uow.registrar_batch(self.repositorio.agregar, influencer)
+        logger.info(f"✅ HANDLER: Operación registrada en UoW")
         
-        # Agregar eventos a UoW
-        logger.info(f"🔄 HANDLER: Agregando {len(influencer.eventos)} eventos a UoW")
-        self.uow.agregar_eventos(influencer.eventos)
+        # Los eventos se publican automáticamente por la UoW
+        # Limpiar eventos después del registro
         influencer.limpiar_eventos()
         
         logger.info(f"✅ HANDLER: Handler completado - Influencer ID: {influencer.id}")

@@ -49,7 +49,7 @@ def init_db():
     
     logger.info("📋 Modelos registrados:")
     logger.info(f"   - Influencers: {len([t for t in Base.metadata.tables.keys() if 'influencer' in t.lower()])} tablas")
-    logger.info(f"   - Campañas: {len([t for t in Base.metadata.tables.keys() if 'campana' in t.lower()])} tablas")
+    logger.info(f"   - Campanas: {len([t for t in Base.metadata.tables.keys() if 'campana' in t.lower()])} tablas")
     logger.info(f"   - Total tablas: {len(Base.metadata.tables)} tablas")
     
     # Solo recrear tablas si está explícitamente configurado

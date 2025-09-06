@@ -1,5 +1,5 @@
 """
-Schema de base de datos para campañas.
+Schema de base de datos para campanas.
 """
 
 from sqlalchemy import Column, String, Text, DateTime, Float, Integer, Boolean, JSON, Enum as SQLEnum
@@ -12,7 +12,7 @@ from alpes_partners.modulos.influencers.infraestructura.modelos import Base
 
 
 class EstadoCampanaEnum(enum.Enum):
-    """Estados de campaña para la base de datos."""
+    """Estados de campana para la base de datos."""
     BORRADOR = "borrador"
     ACTIVA = "activa"
     PAUSADA = "pausada"
@@ -28,7 +28,7 @@ class TipoComisionEnum(enum.Enum):
 
 
 class Campanas(Base):
-    """Tabla de campañas."""
+    """Tabla de campanas."""
     
     __tablename__ = 'campanas'
     
@@ -43,7 +43,7 @@ class Campanas(Base):
     moneda = Column(String(3), nullable=False, default='USD')
     descripcion_comision = Column(Text, nullable=True)
     
-    # Período de campaña
+    # Período de campana
     fecha_inicio = Column(DateTime(timezone=True), nullable=False)
     fecha_fin = Column(DateTime(timezone=True), nullable=True)
     
@@ -71,7 +71,7 @@ class Campanas(Base):
     #   "metricas_minimas": dict
     # }
     
-    # Métricas de campaña (JSON)
+    # Métricas de campana (JSON)
     metricas = Column(JSON, nullable=False, default=dict)
     # Estructura: {
     #   "afiliados_asignados": int,
@@ -84,7 +84,7 @@ class Campanas(Base):
     # Afiliados asignados (JSON array de IDs)
     afiliados_asignados = Column(JSON, nullable=False, default=list)
     
-    # Campos para campañas automáticas
+    # Campos para campanas automáticas
     influencer_origen_id = Column(String(50), nullable=True, index=True)
     categoria_origen = Column(String(100), nullable=True, index=True)
     es_automatica = Column(Boolean, nullable=False, default=False)

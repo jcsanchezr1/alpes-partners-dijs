@@ -216,13 +216,13 @@ class Influencer(AgregacionRaiz):
         self.incrementar_version()
     
     def actualizar_metricas(self, 
-                           campañas_completadas: int = 0,
+                           campanas_completadas: int = 0,
                            engagement_promedio: float = 0.0,
                            cpm_promedio: float = 0.0,
                            ingresos: float = 0.0) -> None:
         """Actualiza las métricas del influencer."""
         nueva_metricas = MetricasInfluencer(
-            campañas_completadas=self.metricas.campañas_completadas + campañas_completadas,
+            campanas_completadas=self.metricas.campanas_completadas + campanas_completadas,
             engagement_promedio=engagement_promedio if engagement_promedio > 0 else self.metricas.engagement_promedio,
             cpm_promedio=cpm_promedio if cpm_promedio > 0 else self.metricas.cpm_promedio,
             ingresos_generados=self.metricas.ingresos_generados + ingresos
@@ -234,13 +234,13 @@ class Influencer(AgregacionRaiz):
         # Emitir evento
         self.agregar_evento(MetricasInfluencerActualizadas(
             influencer_id=self.id,
-            campañas_completadas=nueva_metricas.campañas_completadas,
+            campanas_completadas=nueva_metricas.campanas_completadas,
             ingresos_generados=nueva_metricas.ingresos_generados,
             fecha_actualizacion=datetime.utcnow()
         ))
     
-    def puede_participar_en_campañas(self) -> bool:
-        """Verifica si el influencer puede participar en campañas."""
+    def puede_participar_en_campanas(self) -> bool:
+        """Verifica si el influencer puede participar en campanas."""
         return (self.estado == EstadoInfluencer.ACTIVO and 
                 len(self.audiencia_por_plataforma) > 0)
     

@@ -105,7 +105,7 @@ class InfluencerDTO(DTO):
     tipo_principal: Optional[str] = None
     
     # Métricas
-    campañas_completadas: int = 0
+    campanas_completadas: int = 0
     cpm_promedio: float = 0.0
     ingresos_generados: float = 0.0
     
@@ -127,15 +127,15 @@ class AgregarPlataformaDTO(DTO):
 
 class ActualizarMetricasDTO(DTO):
     """DTO para actualizar métricas del influencer."""
-    campañas_completadas: Optional[int] = 0
+    campanas_completadas: Optional[int] = 0
     engagement_promedio: Optional[float] = 0.0
     cpm_promedio: Optional[float] = 0.0
     ingresos: Optional[float] = 0.0
     
-    @validator('campañas_completadas')
-    def validar_campañas(cls, v):
+    @validator('campanas_completadas')
+    def validar_campanas(cls, v):
         if v is not None and v < 0:
-            raise ValueError('Las campañas completadas no pueden ser negativas')
+            raise ValueError('Las campanas completadas no pueden ser negativas')
         return v
     
     @validator('engagement_promedio')

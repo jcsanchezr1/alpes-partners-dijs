@@ -1,5 +1,5 @@
 """
-Implementación de repositorios para campañas usando SQLAlchemy.
+Implementación de repositorios para campanas usando SQLAlchemy.
 """
 
 import json
@@ -11,92 +11,96 @@ from sqlalchemy import and_, or_
 logger = logging.getLogger(__name__)
 
 from alpes_partners.modulos.campanas.dominio.repositorios import RepositorioCampanas
-from alpes_partners.modulos.campanas.dominio.entidades import Campaña
+from alpes_partners.modulos.campanas.dominio.entidades import Campana
 from alpes_partners.modulos.campanas.dominio.objetos_valor import (
-    TipoComision, EstadoCampaña, TerminosComision, PeriodoCampaña,
-    MaterialPromocional, CriteriosAfiliado, MetricasCampaña
+    TipoComision, EstadoCampana, TerminosComision, PeriodoCampana,
+    MaterialPromocional, CriteriosAfiliado, MetricasCampana
 )
 from alpes_partners.seedwork.dominio.objetos_valor import Dinero
 from .schema.campanas import Campanas as CampanaSchema, EstadoCampanaEnum, TipoComisionEnum
 
+# Importar db como en el tutorial
+from alpes_partners.seedwork.infraestructura.database import db
+
 
 class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
-    """Implementación del repositorio de campañas usando SQLAlchemy."""
+    """Implementación del repositorio de campanas usando SQLAlchemy."""
     
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self):
+        # Sin parámetros, usa db.session directamente como en el tutorial
+        pass
     
-    def obtener_por_id(self, campaña_id: str) -> Optional[Campaña]:
-        """Obtiene una campaña por su ID."""
-        schema = self.session.query(CampanaSchema).filter(CampanaSchema.id == campaña_id).first()
+    def obtener_por_id(self, campana_id: str) -> Optional[Campana]:
+        """Obtiene una campana por su ID."""
+        schema = db.session.query(CampanaSchema).filter(CampanaSchema.id == campana_id).first()
         if schema:
             return self._schema_a_entidad(schema)
         return None
     
-    def obtener_por_nombre(self, nombre: str) -> Optional[Campaña]:
-        """Obtiene una campaña por su nombre."""
-        schema = self.session.query(CampanaSchema).filter(CampanaSchema.nombre == nombre).first()
+    def obtener_por_nombre(self, nombre: str) -> Optional[Campana]:
+        """Obtiene una campana por su nombre."""
+        schema = db.session.query(CampanaSchema).filter(CampanaSchema.nombre == nombre).first()
         if schema:
             return self._schema_a_entidad(schema)
         return None
     
-    def obtener_activas(self) -> List[Campaña]:
-        """Obtiene todas las campañas activas."""
-        schemas = self.session.query(CampanaSchema).filter(
+    def obtener_activas(self) -> List[Campana]:
+        """Obtiene todas las campanas activas."""
+        schemas = db.session.query(CampanaSchema).filter(
             CampanaSchema.estado == EstadoCampanaEnum.ACTIVA
         ).all()
         return [self._schema_a_entidad(schema) for schema in schemas]
     
-    def obtener_por_categoria(self, categoria: str) -> List[Campaña]:
-        """Obtiene campañas que incluyan una categoría específica."""
+    def obtener_por_categoria(self, categoria: str) -> List[Campana]:
+        """Obtiene campanas que incluyan una categoría específica."""
         # Buscar en el JSON de criterios_afiliado
-        schemas = self.session.query(CampanaSchema).filter(
+        schemas = db.session.query(CampanaSchema).filter(
             CampanaSchema.criterios_afiliado.op('->>')('categorias_requeridas').like(f'%{categoria}%')
         ).all()
         return [self._schema_a_entidad(schema) for schema in schemas]
     
-    def obtener_por_influencer_origen(self, influencer_id: str) -> List[Campaña]:
-        """Obtiene campañas creadas para un influencer específico."""
-        schemas = self.session.query(CampanaSchema).filter(
+    def obtener_por_influencer_origen(self, influencer_id: str) -> List[Campana]:
+        """Obtiene campanas creadas para un influencer específico."""
+        schemas = db.session.query(CampanaSchema).filter(
             CampanaSchema.influencer_origen_id == influencer_id
         ).all()
         return [self._schema_a_entidad(schema) for schema in schemas]
     
-    def obtener_todas(self, limite: int = 100, offset: int = 0) -> List[Campaña]:
-        """Obtiene todas las campañas con paginación."""
-        schemas = self.session.query(CampanaSchema).offset(offset).limit(limite).all()
+    def obtener_todas(self, limite: int = 100, offset: int = 0) -> List[Campana]:
+        """Obtiene todas las campanas con paginación."""
+        schemas = db.session.query(CampanaSchema).offset(offset).limit(limite).all()
         return [self._schema_a_entidad(schema) for schema in schemas]
     
-    def agregar(self, campaña: Campaña) -> None:
-        """Agrega una nueva campaña."""
-        logger.info(f"💾 CAMPAÑAS: Agregando campaña '{campaña.nombre}' al repositorio")
-        schema = self._entidad_a_schema(campaña)
-        self.session.add(schema)
-        self.session.flush()  # Para obtener el ID generado
-        logger.info(f"✅ CAMPAÑAS: Campaña '{campaña.nombre}' agregada a la sesión con ID: {schema.id}")
+    def agregar(self, campana: Campana) -> None:
+        """Agrega una nueva campana."""
+        logger.info(f"💾 CAMPAnAS: Agregando campana '{campana.nombre}' al repositorio")
+        schema = self._entidad_a_schema(campana)
+        db.session.add(schema)
+        db.session.flush()  # Para obtener el ID generado
+        logger.info(f"✅ CAMPAnAS: Campana '{campana.nombre}' agregada a la sesión con ID: {schema.id}")
     
-    def actualizar(self, campaña: Campaña) -> None:
-        """Actualiza una campaña existente."""
-        schema = self.session.query(CampanaSchema).filter(CampanaSchema.id == campaña.id).first()
+    def actualizar(self, campana: Campana) -> None:
+        """Actualiza una campana existente."""
+        schema = db.session.query(CampanaSchema).filter(CampanaSchema.id == campana.id).first()
         if schema:
-            self._actualizar_schema_desde_entidad(schema, campaña)
-            self.session.flush()
+            self._actualizar_schema_desde_entidad(schema, campana)
+            db.session.flush()
     
-    def eliminar(self, campaña_id: str) -> None:
-        """Elimina una campaña."""
-        schema = self.session.query(CampanaSchema).filter(CampanaSchema.id == campaña_id).first()
+    def eliminar(self, campana_id: str) -> None:
+        """Elimina una campana."""
+        schema = db.session.query(CampanaSchema).filter(CampanaSchema.id == campana_id).first()
         if schema:
-            self.session.delete(schema)
-            self.session.flush()
+            db.session.delete(schema)
+            db.session.flush()
     
     def existe_con_nombre(self, nombre: str, excluir_id: Optional[str] = None) -> bool:
-        """Verifica si existe una campaña con el nombre dado."""
-        query = self.session.query(CampanaSchema).filter(CampanaSchema.nombre == nombre)
+        """Verifica si existe una campana con el nombre dado."""
+        query = db.session.query(CampanaSchema).filter(CampanaSchema.nombre == nombre)
         if excluir_id:
             query = query.filter(CampanaSchema.id != excluir_id)
         return query.first() is not None
     
-    def _schema_a_entidad(self, schema: CampanaSchema) -> Campaña:
+    def _schema_a_entidad(self, schema: CampanaSchema) -> Campana:
         """Convierte un schema de base de datos a entidad de dominio."""
         
         # Crear objetos valor
@@ -108,7 +112,7 @@ class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
             schema.descripcion_comision or ""
         )
         
-        periodo = PeriodoCampaña(schema.fecha_inicio, schema.fecha_fin)
+        periodo = PeriodoCampana(schema.fecha_inicio, schema.fecha_fin)
         
         # Material promocional
         material_data = schema.material_promocional or {}
@@ -130,7 +134,7 @@ class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
         )
         
         # Crear la entidad
-        campaña = Campaña(
+        campana = Campana(
             nombre=schema.nombre,
             descripcion=schema.descripcion,
             terminos_comision=terminos_comision,
@@ -141,13 +145,13 @@ class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
         )
         
         # Establecer estado y fechas
-        campaña.estado = EstadoCampaña(schema.estado.value)
-        campaña.fecha_activacion = schema.fecha_activacion
-        campaña.fecha_pausa = schema.fecha_pausa
+        campana.estado = EstadoCampana(schema.estado.value)
+        campana.fecha_activacion = schema.fecha_activacion
+        campana.fecha_pausa = schema.fecha_pausa
         
         # Métricas
         metricas_data = schema.metricas or {}
-        campaña.metricas = MetricasCampaña(
+        campana.metricas = MetricasCampana(
             afiliados_asignados=metricas_data.get('afiliados_asignados', 0),
             clics_totales=metricas_data.get('clics_totales', 0),
             conversiones_totales=metricas_data.get('conversiones_totales', 0),
@@ -156,99 +160,99 @@ class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
         )
         
         # Afiliados asignados
-        campaña.afiliados_asignados = set(schema.afiliados_asignados or [])
+        campana.afiliados_asignados = set(schema.afiliados_asignados or [])
         
         # Establecer versión
-        campaña.version = schema.version
+        campana.version = schema.version
         
-        return campaña
+        return campana
     
-    def _entidad_a_schema(self, campaña: Campaña) -> CampanaSchema:
+    def _entidad_a_schema(self, campana: Campana) -> CampanaSchema:
         """Convierte una entidad de dominio a schema de base de datos."""
         
         # Preparar datos JSON
         material_data = {
-            'titulo': campaña.material_promocional.titulo,
-            'descripcion': campaña.material_promocional.descripcion,
-            'enlaces': campaña.material_promocional.enlaces,
-            'imagenes': campaña.material_promocional.imagenes,
-            'banners': campaña.material_promocional.banners
+            'titulo': campana.material_promocional.titulo,
+            'descripcion': campana.material_promocional.descripcion,
+            'enlaces': campana.material_promocional.enlaces,
+            'imagenes': campana.material_promocional.imagenes,
+            'banners': campana.material_promocional.banners
         }
         
         criterios_data = {
-            'tipos_permitidos': campaña.criterios_afiliado.tipos_permitidos,
-            'categorias_requeridas': campaña.criterios_afiliado.categorias_requeridas,
-            'paises_permitidos': campaña.criterios_afiliado.paises_permitidos,
-            'metricas_minimas': campaña.criterios_afiliado.metricas_minimas
+            'tipos_permitidos': campana.criterios_afiliado.tipos_permitidos,
+            'categorias_requeridas': campana.criterios_afiliado.categorias_requeridas,
+            'paises_permitidos': campana.criterios_afiliado.paises_permitidos,
+            'metricas_minimas': campana.criterios_afiliado.metricas_minimas
         }
         
         metricas_data = {
-            'afiliados_asignados': campaña.metricas.afiliados_asignados,
-            'clics_totales': campaña.metricas.clics_totales,
-            'conversiones_totales': campaña.metricas.conversiones_totales,
-            'inversion_total': campaña.metricas.inversion_total,
-            'ingresos_generados': campaña.metricas.ingresos_generados
+            'afiliados_asignados': campana.metricas.afiliados_asignados,
+            'clics_totales': campana.metricas.clics_totales,
+            'conversiones_totales': campana.metricas.conversiones_totales,
+            'inversion_total': campana.metricas.inversion_total,
+            'ingresos_generados': campana.metricas.ingresos_generados
         }
         
         return CampanaSchema(
-            id=campaña.id,
-            nombre=campaña.nombre,
-            descripcion=campaña.descripcion,
-            tipo_comision=TipoComisionEnum(campaña.terminos_comision.tipo.value),
-            valor_comision=campaña.terminos_comision.valor.cantidad,
-            moneda=campaña.terminos_comision.valor.moneda,
-            descripcion_comision=campaña.terminos_comision.descripcion,
-            fecha_inicio=campaña.periodo.fecha_inicio,
-            fecha_fin=campaña.periodo.fecha_fin,
-            estado=EstadoCampanaEnum(campaña.estado.value),
-            fecha_activacion=campaña.fecha_activacion,
-            fecha_pausa=campaña.fecha_pausa,
+            id=campana.id,
+            nombre=campana.nombre,
+            descripcion=campana.descripcion,
+            tipo_comision=TipoComisionEnum(campana.terminos_comision.tipo.value),
+            valor_comision=campana.terminos_comision.valor.cantidad,
+            moneda=campana.terminos_comision.valor.moneda,
+            descripcion_comision=campana.terminos_comision.descripcion,
+            fecha_inicio=campana.periodo.fecha_inicio,
+            fecha_fin=campana.periodo.fecha_fin,
+            estado=EstadoCampanaEnum(campana.estado.value),
+            fecha_activacion=campana.fecha_activacion,
+            fecha_pausa=campana.fecha_pausa,
             material_promocional=material_data,
             criterios_afiliado=criterios_data,
             metricas=metricas_data,
-            afiliados_asignados=list(campaña.afiliados_asignados),
-            version=campaña.version
+            afiliados_asignados=list(campana.afiliados_asignados),
+            version=campana.version
         )
     
-    def _actualizar_schema_desde_entidad(self, schema: CampanaSchema, campaña: Campaña) -> None:
+    def _actualizar_schema_desde_entidad(self, schema: CampanaSchema, campana: Campana) -> None:
         """Actualiza un schema existente con datos de la entidad."""
         
         # Actualizar campos básicos
-        schema.nombre = campaña.nombre
-        schema.descripcion = campaña.descripcion
-        schema.tipo_comision = TipoComisionEnum(campaña.terminos_comision.tipo.value)
-        schema.valor_comision = campaña.terminos_comision.valor.cantidad
-        schema.moneda = campaña.terminos_comision.valor.moneda
-        schema.descripcion_comision = campaña.terminos_comision.descripcion
-        schema.fecha_inicio = campaña.periodo.fecha_inicio
-        schema.fecha_fin = campaña.periodo.fecha_fin
-        schema.estado = EstadoCampanaEnum(campaña.estado.value)
-        schema.fecha_activacion = campaña.fecha_activacion
-        schema.fecha_pausa = campaña.fecha_pausa
+        schema.nombre = campana.nombre
+        schema.descripcion = campana.descripcion
+        schema.tipo_comision = TipoComisionEnum(campana.terminos_comision.tipo.value)
+        schema.valor_comision = campana.terminos_comision.valor.cantidad
+        schema.moneda = campana.terminos_comision.valor.moneda
+        schema.descripcion_comision = campana.terminos_comision.descripcion
+        schema.fecha_inicio = campana.periodo.fecha_inicio
+        schema.fecha_fin = campana.periodo.fecha_fin
+        schema.estado = EstadoCampanaEnum(campana.estado.value)
+        schema.fecha_activacion = campana.fecha_activacion
+        schema.fecha_pausa = campana.fecha_pausa
         
         # Actualizar datos JSON
         schema.material_promocional = {
-            'titulo': campaña.material_promocional.titulo,
-            'descripcion': campaña.material_promocional.descripcion,
-            'enlaces': campaña.material_promocional.enlaces,
-            'imagenes': campaña.material_promocional.imagenes,
-            'banners': campaña.material_promocional.banners
+            'titulo': campana.material_promocional.titulo,
+            'descripcion': campana.material_promocional.descripcion,
+            'enlaces': campana.material_promocional.enlaces,
+            'imagenes': campana.material_promocional.imagenes,
+            'banners': campana.material_promocional.banners
         }
         
         schema.criterios_afiliado = {
-            'tipos_permitidos': campaña.criterios_afiliado.tipos_permitidos,
-            'categorias_requeridas': campaña.criterios_afiliado.categorias_requeridas,
-            'paises_permitidos': campaña.criterios_afiliado.paises_permitidos,
-            'metricas_minimas': campaña.criterios_afiliado.metricas_minimas
+            'tipos_permitidos': campana.criterios_afiliado.tipos_permitidos,
+            'categorias_requeridas': campana.criterios_afiliado.categorias_requeridas,
+            'paises_permitidos': campana.criterios_afiliado.paises_permitidos,
+            'metricas_minimas': campana.criterios_afiliado.metricas_minimas
         }
         
         schema.metricas = {
-            'afiliados_asignados': campaña.metricas.afiliados_asignados,
-            'clics_totales': campaña.metricas.clics_totales,
-            'conversiones_totales': campaña.metricas.conversiones_totales,
-            'inversion_total': campaña.metricas.inversion_total,
-            'ingresos_generados': campaña.metricas.ingresos_generados
+            'afiliados_asignados': campana.metricas.afiliados_asignados,
+            'clics_totales': campana.metricas.clics_totales,
+            'conversiones_totales': campana.metricas.conversiones_totales,
+            'inversion_total': campana.metricas.inversion_total,
+            'ingresos_generados': campana.metricas.ingresos_generados
         }
         
-        schema.afiliados_asignados = list(campaña.afiliados_asignados)
-        schema.version = campaña.version
+        schema.afiliados_asignados = list(campana.afiliados_asignados)
+        schema.version = campana.version

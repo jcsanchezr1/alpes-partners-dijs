@@ -66,7 +66,7 @@ class MapeadorInfluencer(Mapeador):
             total_seguidores=entidad.obtener_total_seguidores(),
             engagement_promedio=entidad.obtener_engagement_promedio(),
             tipo_principal=tipo_principal,
-            campañas_completadas=entidad.metricas.campañas_completadas,
+            campanas_completadas=entidad.metricas.campanas_completadas,
             cpm_promedio=entidad.metricas.cpm_promedio,
             ingresos_generados=entidad.metricas.ingresos_generados,
             demografia=demografia_dto

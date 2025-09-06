@@ -32,7 +32,7 @@ class InfluencerModelo(Base):
     demografia = Column(JSON, nullable=True)
     
     # Métricas
-    campañas_completadas = Column(Integer, nullable=False, default=0)
+    campanas_completadas = Column(Integer, nullable=False, default=0)
     engagement_promedio = Column(Float, nullable=False, default=0.0)
     cpm_promedio = Column(Float, nullable=False, default=0.0)
     ingresos_generados = Column(Float, nullable=False, default=0.0)
