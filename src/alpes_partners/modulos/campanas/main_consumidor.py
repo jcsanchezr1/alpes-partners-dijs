@@ -45,7 +45,7 @@ def main():
     logger.info("📋 CONFIGURACIÓN:")
     logger.info(f"   🌐 PULSAR_ADDRESS: {os.getenv('PULSAR_ADDRESS', 'localhost')}")
     logger.info(f"   📊 Módulo: Campanas")
-    logger.info(f"   🎯 Eventos: InfluencerRegistrado, InfluencerActivado, InfluencerDesactivado")
+    logger.info(f"   🎯 Eventos: InfluencerRegistrado")
     logger.info("=" * 80)
     
     try:

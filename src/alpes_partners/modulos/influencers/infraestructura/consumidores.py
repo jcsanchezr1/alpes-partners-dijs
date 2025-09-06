@@ -10,9 +10,7 @@ import time
 import logging
 
 from alpes_partners.modulos.influencers.infraestructura.schema.v1.eventos import (
-    EventoInfluencerRegistrado,
-    EventoInfluencerActivado,
-    EventoInfluencerDesactivado
+    EventoInfluencerRegistrado
 )
 from alpes_partners.modulos.influencers.infraestructura.schema.v1.comandos import (
     ComandoRegistrarInfluencer

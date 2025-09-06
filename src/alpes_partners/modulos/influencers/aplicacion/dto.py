@@ -123,35 +123,3 @@ class ActualizarPerfilInfluencerDTO(DTO):
 class AgregarPlataformaDTO(DTO):
     """DTO para agregar una plataforma al influencer."""
     datos_audiencia: DatosAudienciaDTO
-
-
-class ActualizarMetricasDTO(DTO):
-    """DTO para actualizar métricas del influencer."""
-    campanas_completadas: Optional[int] = 0
-    engagement_promedio: Optional[float] = 0.0
-    cpm_promedio: Optional[float] = 0.0
-    ingresos: Optional[float] = 0.0
-    
-    @validator('campanas_completadas')
-    def validar_campanas(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('Las campanas completadas no pueden ser negativas')
-        return v
-    
-    @validator('engagement_promedio')
-    def validar_engagement(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('El engagement promedio no puede ser negativo')
-        return v
-    
-    @validator('cpm_promedio')
-    def validar_cpm(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('El CPM promedio no puede ser negativo')
-        return v
-    
-    @validator('ingresos')
-    def validar_ingresos(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('Los ingresos no pueden ser negativos')
-        return v
