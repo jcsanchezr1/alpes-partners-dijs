@@ -36,16 +36,6 @@ class Influencer(AgregacionRaiz):
         # Validaciones
         if not self.nombre:
             raise ExcepcionReglaDeNegocio("El nombre del influencer es requerido")
-        
-        # Emitir evento de registro
-        self.agregar_evento(InfluencerRegistrado(
-            influencer_id=self.id,
-            nombre=self.nombre,
-            email=self.email.valor,
-            categorias=self.perfil.categorias.categorias,
-            plataformas=[],  # Se actualizará cuando se agreguen plataformas
-            fecha_registro=self.fecha_creacion
-        ))
     
     @classmethod
     def crear(cls, 

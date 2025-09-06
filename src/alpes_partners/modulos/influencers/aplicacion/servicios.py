@@ -42,7 +42,7 @@ class ServicioInfluencer:
         offset: int = 0
     ) -> List[InfluencerDTO]:
         """Lista influencers con filtros opcionales."""
-        logger.info("🔍 SERVICIO: Obteniendo lista de influencers con filtros")
+        logger.info("SERVICIO: Obteniendo lista de influencers con filtros")
         
         influencers = self.repositorio.obtener_con_filtros(
             estado=estado,
@@ -56,7 +56,7 @@ class ServicioInfluencer:
             offset=offset
         )
         
-        logger.info(f"✅ SERVICIO: {len(influencers)} influencers encontrados")
+        logger.info(f"SERVICIO: {len(influencers)} influencers encontrados")
         return [self._convertir_a_dto(influencer) for influencer in influencers]
     
     def _convertir_a_dto(self, influencer: Influencer) -> InfluencerDTO:

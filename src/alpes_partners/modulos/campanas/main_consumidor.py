@@ -40,17 +40,17 @@ def main():
     4. Cierre limpio de recursos
     """
     
-    logger.info("🚀 MAIN: Iniciando consumidor de eventos de influencers para campanas")
+    logger.info("MAIN: Iniciando consumidor de eventos de influencers para campanas")
     logger.info("=" * 80)
-    logger.info("📋 CONFIGURACIÓN:")
+    logger.info("CONFIGURACIÓN:")
     logger.info(f"   🌐 PULSAR_ADDRESS: {os.getenv('PULSAR_ADDRESS', 'localhost')}")
-    logger.info(f"   📊 Módulo: Campanas")
-    logger.info(f"   🎯 Eventos: InfluencerRegistrado")
+    logger.info(f"   Módulo: Campanas")
+    logger.info(f"   Eventos: InfluencerRegistrado")
     logger.info("=" * 80)
     
     try:
         # Iniciar consumo de eventos
-        logger.info("🎯 MAIN: Iniciando consumo de eventos...")
+        logger.info("MAIN: Iniciando consumo de eventos...")
         logger.info("   💡 Presiona Ctrl+C para detener el consumidor")
         logger.info("=" * 80)
         
@@ -60,7 +60,7 @@ def main():
         logger.info("🛑 MAIN: Deteniendo consumidor por solicitud del usuario")
         
     except Exception as e:
-        logger.error(f"❌ MAIN: Error fatal: {e}")
+        logger.error(f"MAIN: Error fatal: {e}")
         logger.error("   💡 Verifica que Pulsar esté ejecutándose y accesible")
         logger.error(f"   🌐 Host configurado: {os.getenv('PULSAR_ADDRESS', 'localhost')}")
         sys.exit(1)

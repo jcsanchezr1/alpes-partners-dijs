@@ -24,7 +24,7 @@ class InfluencerMapper:
         # Convertir estado a string
         estado_valor = influencer.estado.value if hasattr(influencer.estado, 'value') else str(influencer.estado)
         
-        logger.info(f"🔄 MAPPER: Convirtiendo entidad a modelo - ID: {influencer.id}, Estado: {estado_valor}")
+        logger.info(f"MAPPER: Convirtiendo entidad a modelo - ID: {influencer.id}, Estado: {estado_valor}")
         
         # Convertir audiencia por plataforma a JSON
         audiencia_json = {}
@@ -98,7 +98,7 @@ class InfluencerMapper:
     def a_entidad(modelo: InfluencerModelo) -> Influencer:
         """Convierte un modelo SQLAlchemy a entidad Influencer."""
         
-        logger.info(f"🔄 MAPPER: Convirtiendo modelo a entidad - ID: {modelo.id}")
+        logger.info(f"MAPPER: Convirtiendo modelo a entidad - ID: {modelo.id}")
         
         # Crear objetos de valor básicos
         email = Email(modelo.email)
@@ -147,7 +147,7 @@ class InfluencerMapper:
                     )
                     influencer.audiencia_por_plataforma[plataforma] = datos_audiencia
                 except ValueError:
-                    logger.warning(f"⚠️ MAPPER: Plataforma desconocida: {plataforma_str}")
+                    logger.warning(f"MAPPER: Plataforma desconocida: {plataforma_str}")
         
         # Reconstruir demografía
         if modelo.demografia:
@@ -158,7 +158,7 @@ class InfluencerMapper:
                         genero = Genero(genero_str)
                         distribucion_genero[genero] = porcentaje
                     except ValueError:
-                        logger.warning(f"⚠️ MAPPER: Género desconocido: {genero_str}")
+                        logger.warning(f"MAPPER: Género desconocido: {genero_str}")
                 
                 distribucion_edad = {}
                 for edad_str, porcentaje in modelo.demografia.get('distribucion_edad', {}).items():
@@ -166,7 +166,7 @@ class InfluencerMapper:
                         edad = RangoEdad(edad_str)
                         distribucion_edad[edad] = porcentaje
                     except ValueError:
-                        logger.warning(f"⚠️ MAPPER: Rango de edad desconocido: {edad_str}")
+                        logger.warning(f"MAPPER: Rango de edad desconocido: {edad_str}")
                 
                 if distribucion_genero and distribucion_edad:
                     influencer.demografia = Demografia(
@@ -175,7 +175,7 @@ class InfluencerMapper:
                         paises_principales=modelo.demografia.get('paises_principales', [])
                     )
             except Exception as e:
-                logger.warning(f"⚠️ MAPPER: Error al reconstruir demografía: {e}")
+                logger.warning(f"MAPPER: Error al reconstruir demografía: {e}")
         
         # Establecer métricas
         influencer.metricas = MetricasInfluencer(
@@ -194,7 +194,7 @@ class InfluencerMapper:
     def actualizar_modelo(modelo: InfluencerModelo, influencer: Influencer) -> None:
         """Actualiza un modelo existente con datos de la entidad."""
         
-        logger.info(f"🔄 MAPPER: Actualizando modelo existente - ID: {influencer.id}")
+        logger.info(f"MAPPER: Actualizando modelo existente - ID: {influencer.id}")
         
         # Actualizar campos básicos
         modelo.nombre = influencer.nombre

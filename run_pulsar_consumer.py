@@ -27,35 +27,35 @@ logger = logging.getLogger(__name__)
 suscribirse_a_eventos_influencers_desde_campanas = None
 
 try:
-    logger.info("🔍 PULSAR: Intentando importar módulo de campanas...")
-    logger.info("🔍 PULSAR: Paso 1 - Importando consumidores...")
+    logger.info("PULSAR: Intentando importar módulo de campanas...")
+    logger.info("PULSAR: Paso 1 - Importando consumidores...")
     from alpes_partners.modulos.campanas.infraestructura.consumidores import suscribirse_a_eventos_influencers_desde_campanas
-    logger.info("✅ PULSAR: Módulo de campanas importado exitosamente")
+    logger.info("PULSAR: Módulo de campanas importado exitosamente")
 except ImportError as e:
-    logger.error(f"❌ PULSAR: Error detallado importando campanas: {e}")
-    logger.error(f"❌ PULSAR: Tipo de error: {type(e).__name__}")
+    logger.error(f"PULSAR: Error detallado importando campanas: {e}")
+    logger.error(f"PULSAR: Tipo de error: {type(e).__name__}")
     import traceback
-    logger.error(f"❌ PULSAR: Traceback completo:\n{traceback.format_exc()}")
-    logger.info("💡 PULSAR: El consumidor funcionará solo con influencers")
+    logger.error(f"PULSAR: Traceback completo:\n{traceback.format_exc()}")
+    logger.info("PULSAR: El consumidor funcionará solo con influencers")
 
 
 
 def ejecutar_consumidor_campanas():
     """Ejecuta el consumidor de campanas."""
     if suscribirse_a_eventos_influencers_desde_campanas is None:
-        logger.warning("⚠️ PULSAR: Consumidor de campanas no disponible - módulo no importado")
+        logger.warning("PULSAR: Consumidor de campanas no disponible - módulo no importado")
         return
     
     try:
-        logger.info("🚀 PULSAR: Iniciando consumidor de campanas...")
+        logger.info("PULSAR: Iniciando consumidor de campanas...")
         suscribirse_a_eventos_influencers_desde_campanas()
     except Exception as e:
-        logger.error(f"❌ PULSAR: Error en consumidor de campanas: {e}")
+        logger.error(f"PULSAR: Error en consumidor de campanas: {e}")
 
 
 def main():
     """Ejecuta los consumidores de Pulsar en threads separados."""
-    logger.info("🚀 PULSAR: Iniciando consumidores de Apache Pulsar...")
+    logger.info("PULSAR: Iniciando consumidores de Apache Pulsar...")
     
     try:
         # Crear threads para cada consumidor
@@ -82,10 +82,10 @@ def main():
         thread_comandos_influencers.start()
         thread_eventos_campanas.start()
         
-        logger.info("✅ PULSAR: Consumidores iniciados exitosamente")
-        logger.info("📡 PULSAR: Escuchando eventos y comandos...")
-        logger.info("   🔹 Influencers: eventos y comandos")
-        logger.info("   🔹 Campanas: eventos de influencers")
+        logger.info("PULSAR: Consumidores iniciados exitosamente")
+        logger.info("PULSAR: Escuchando eventos y comandos...")
+        logger.info("Influencers: eventos y comandos")
+        logger.info("Campanas: eventos de influencers")
         
         # Mantener el proceso principal vivo
         try:
@@ -93,10 +93,10 @@ def main():
             thread_comandos_influencers.join()
             thread_eventos_campanas.join()
         except KeyboardInterrupt:
-            logger.info("🛑 PULSAR: Deteniendo consumidores...")
+            logger.info("PULSAR: Deteniendo consumidores...")
             
     except Exception as e:
-        logger.error(f"❌ PULSAR: Error iniciando consumidores: {e}")
+        logger.error(f"PULSAR: Error iniciando consumidores: {e}")
         sys.exit(1)
 
 

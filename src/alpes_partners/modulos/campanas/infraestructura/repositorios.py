@@ -73,11 +73,11 @@ class RepositorioCampanasSQLAlchemy(RepositorioCampanas):
     
     def agregar(self, campana: Campana) -> None:
         """Agrega una nueva campana."""
-        logger.info(f"💾 CAMPAnAS: Agregando campana '{campana.nombre}' al repositorio")
+        logger.info(f"CAMPANAS: Agregando campana '{campana.nombre}' al repositorio")
         schema = self._entidad_a_schema(campana)
         db.session.add(schema)
         db.session.flush()  # Para obtener el ID generado
-        logger.info(f"✅ CAMPAnAS: Campana '{campana.nombre}' agregada a la sesión con ID: {schema.id}")
+        logger.info(f"CAMPANAS: Campana '{campana.nombre}' agregada a la sesión con ID: {schema.id}")
     
     def actualizar(self, campana: Campana) -> None:
         """Actualiza una campana existente."""

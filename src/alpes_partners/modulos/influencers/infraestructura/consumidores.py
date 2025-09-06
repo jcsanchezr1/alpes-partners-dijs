@@ -31,41 +31,11 @@ def suscribirse_a_eventos_influencers():
         logger.info("🔌 PULSAR: Conectando a eventos de influencers...")
         cliente = pulsar.Client(f'pulsar://{utils.broker_host()}:6650')
         
-        # NOTA: Los eventos de influencers son consumidos por OTROS módulos (como campanas)
-        # Un módulo no debería suscribirse a sus propios eventos para evitar procesamiento duplicado
-        # Comentado para evitar conflictos:
-        #
-        # consumidor_registrados = cliente.subscribe(
-        #     'eventos-influencers', 
-        #     consumer_type=_pulsar.ConsumerType.Shared,
-        #     subscription_name='alpes-partners-sub-eventos-influencers', 
-        #     schema=AvroSchema(EventoInfluencerRegistrado)
-        # )
-        
-        logger.info("ℹ️ PULSAR: Módulo de influencers NO se suscribe a sus propios eventos")
-        logger.info("ℹ️ PULSAR: Los eventos son procesados por otros módulos (campanas, etc.)")
-        
-        # Bucle comentado - ya no procesamos nuestros propios eventos:
-        # while True:
-        #     try:
-        #         mensaje = consumidor_registrados.receive()
-        #         logger.info(f"📨 PULSAR: Evento recibido - {mensaje.value()}")
-        #         
-        #         # Procesar el evento aquí
-        #         evento = mensaje.value()
-        #         procesar_evento_influencer(evento)
-        #         
-        #         # Confirmar procesamiento
-        #         consumidor_registrados.acknowledge(mensaje)
-        #         logger.info("✅ PULSAR: Evento procesado y confirmado")
-        #         
-        #     except Exception as e:
-        #         logger.error(f"❌ PULSAR: Error procesando evento: {e}")
-        #         # En producción, implementar retry logic o dead letter queue
-        #         time.sleep(5)
+        logger.info("PULSAR: Módulo de influencers NO se suscribe a sus propios eventos")
+        logger.info("PULSAR: Los eventos son procesados por otros módulos (campanas, etc.)")
                 
     except Exception as e:
-        logger.error(f"❌ PULSAR: Error en consumidor de eventos: {e}")
+        logger.error(f"PULSAR: Error en consumidor de eventos: {e}")
     finally:
         if cliente:
             cliente.close()
@@ -88,12 +58,12 @@ def suscribirse_a_comandos_influencers():
             schema=AvroSchema(ComandoRegistrarInfluencer)
         )
 
-        logger.info("✅ PULSAR: Suscrito a comandos de influencers")
+        logger.info("PULSAR: Suscrito a comandos de influencers")
         
         while True:
             try:
                 mensaje = consumidor_comandos.receive()
-                logger.info(f"📨 PULSAR: Comando recibido - {mensaje.value()}")
+                logger.info(f"PULSAR: Comando recibido - {mensaje.value()}")
                 
                 # Procesar el comando aquí
                 comando = mensaje.value()
@@ -101,14 +71,14 @@ def suscribirse_a_comandos_influencers():
                 
                 # Confirmar procesamiento
                 consumidor_comandos.acknowledge(mensaje)
-                logger.info("✅ PULSAR: Comando procesado y confirmado")
+                logger.info("PULSAR: Comando procesado y confirmado")
                 
             except Exception as e:
-                logger.error(f"❌ PULSAR: Error procesando comando: {e}")
+                logger.error(f"PULSAR: Error procesando comando: {e}")
                 time.sleep(5)
                 
     except Exception as e:
-        logger.error(f"❌ PULSAR: Error en consumidor de comandos: {e}")
+        logger.error(f"PULSAR: Error en consumidor de comandos: {e}")
     finally:
         if cliente:
             cliente.close()
@@ -119,16 +89,13 @@ def procesar_evento_influencer(evento):
     Procesa eventos de influencers recibidos desde Pulsar.
     Aquí puedes implementar lógica de negocio que reaccione a eventos.
     """
-    logger.info(f"🔄 PROCESANDO: Evento de influencer - Tipo: {type(evento).__name__}")
+    logger.info(f"PROCESANDO: Evento de influencer - Tipo: {type(evento).__name__}")
     
     if hasattr(evento, 'data'):
         data = evento.data
-        logger.info(f"📋 DATOS: {data}")
+        logger.info(f"DATOS: {data}")
         
-        # Ejemplo: Enviar notificación, actualizar cache, etc.
-        # En un microservicio real, aquí implementarías la lógica específica
-        
-    logger.info("✅ PROCESADO: Evento de influencer procesado exitosamente")
+    logger.info("PROCESADO: Evento de influencer procesado exitosamente")
 
 
 def procesar_comando_influencer(comando):
@@ -136,14 +103,14 @@ def procesar_comando_influencer(comando):
     Procesa comandos de influencers recibidos desde Pulsar.
     Aquí puedes implementar lógica para ejecutar comandos remotos.
     """
-    logger.info(f"🔄 PROCESANDO: Comando de influencer - Tipo: {type(comando).__name__}")
+    logger.info(f"PROCESANDO: Comando de influencer - Tipo: {type(comando).__name__}")
     
     if hasattr(comando, 'data'):
         data = comando.data
-        logger.info(f"📋 DATOS: {data}")
+        logger.info(f"DATOS: {data}")
         
         # Ejemplo: Ejecutar comando usando el mediador local
         # from alpes_partners.seedwork.aplicacion.comandos import ejecutar_commando
         # ejecutar_commando(convertir_a_comando_local(comando))
         
-    logger.info("✅ PROCESADO: Comando de influencer procesado exitosamente")
+    logger.info("PROCESADO: Comando de influencer procesado exitosamente")

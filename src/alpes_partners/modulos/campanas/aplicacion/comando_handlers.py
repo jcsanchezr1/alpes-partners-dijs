@@ -27,18 +27,18 @@ class ManejadorRegistrarCampana(ManejadorComando[RegistrarCampana]):
         self.uow = uow
     
     def handle(self, comando: RegistrarCampana) -> None:
-        logger.info(f"🎯 HANDLER: Iniciando registro de campana - Nombre: {comando.nombre}")
+        logger.info(f"HANDLER: Iniciando registro de campana - Nombre: {comando.nombre}")
         
         # Verificar si el nombre ya existe
-        logger.info(f"🔍 HANDLER: Verificando si nombre existe: {comando.nombre}")
+        logger.info(f"HANDLER: Verificando si nombre existe: {comando.nombre}")
         if self.repositorio.existe_con_nombre(comando.nombre):
-            logger.warning(f"⚠️ HANDLER: Nombre ya registrado: {comando.nombre}")
+            logger.warning(f"HANDLER: Nombre ya registrado: {comando.nombre}")
             raise CampanaYaExisteExcepcion(f"Ya existe una campana con el nombre {comando.nombre}")
         
-        logger.info(f"✅ HANDLER: Nombre disponible: {comando.nombre}")
+        logger.info(f"HANDLER: Nombre disponible: {comando.nombre}")
         
         # Crear entidad campana usando la fábrica
-        logger.info(f"🔄 HANDLER: Creando entidad campana...")
+        logger.info(f"HANDLER: Creando entidad campana...")
         from alpes_partners.modulos.campanas.aplicacion.dto import RegistrarCampanaDTO
         from alpes_partners.modulos.campanas.aplicacion.mapeadores import MapeadorCampana
         from alpes_partners.modulos.campanas.dominio.fabricas import FabricaCampanas
@@ -73,18 +73,18 @@ class ManejadorRegistrarCampana(ManejadorComando[RegistrarCampana]):
         fabrica_campanas = FabricaCampanas()
         campana: Campana = fabrica_campanas.crear_objeto(campana_dto, MapeadorCampana())
         
-        logger.info(f"✅ HANDLER: Campana creada - ID: {campana.id}, Eventos: {len(campana.eventos)}")
+        logger.info(f"HANDLER: Campana creada - ID: {campana.id}, Eventos: {len(campana.eventos)}")
         
         # Agregar al repositorio usando UoW
-        logger.info(f"🔄 HANDLER: Registrando operación en UoW...")
+        logger.info(f"HANDLER: Registrando operación en UoW...")
         self.uow.registrar_batch(self.repositorio.agregar, campana)
-        logger.info(f"✅ HANDLER: Operación registrada en UoW")
+        logger.info(f"HANDLER: Operación registrada en UoW")
         
         # Los eventos se publican automáticamente por la UoW
         # Limpiar eventos después del registro
         campana.limpiar_eventos()
         
-        logger.info(f"✅ HANDLER: Handler completado - Campana ID: {campana.id}")
+        logger.info(f"HANDLER: Handler completado - Campana ID: {campana.id}")
 
 
-logger.info("🔧 HANDLERS: Handlers de aplicación de campanas cargados")
+logger.info("HANDLERS: Handlers de aplicación de campanas cargados")

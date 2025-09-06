@@ -34,18 +34,18 @@ class RegistrarInfluencer(Comando):
 class RegistrarInfluencerHandler(RegistrarInfluencerBaseHandler):
     
     def handle(self, comando: RegistrarInfluencer):
-        logger.info(f"🎯 COMANDO HANDLER: Iniciando registro de influencer - Email: {comando.email}")
+        logger.info(f"COMANDO HANDLER: Iniciando registro de influencer - Email: {comando.email}")
         
         # Crear repositorio para validaciones de dominio
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioInfluencersSQLAlchemy.__class__)
         
         # VALIDACIÓN DE DOMINIO: Verificar unicidad del email ANTES de crear la entidad
-        logger.info(f"🔍 COMANDO HANDLER: Verificando unicidad del email: {comando.email}")
+        logger.info(f"COMANDO HANDLER: Verificando unicidad del email: {comando.email}")
         if repositorio.existe_email(comando.email):
-            logger.warning(f"⚠️ COMANDO HANDLER: Email ya registrado: {comando.email}")
+            logger.warning(f"COMANDO HANDLER: Email ya registrado: {comando.email}")
             raise EmailYaRegistrado(f"Ya existe un influencer con el email {comando.email}")
         
-        logger.info(f"✅ COMANDO HANDLER: Email disponible: {comando.email}")
+        logger.info(f"COMANDO HANDLER: Email disponible: {comando.email}")
         
         # Crear la entidad solo después de validar las reglas de dominio
         influencer_dto = RegistrarInfluencerDTO(
@@ -68,7 +68,7 @@ class RegistrarInfluencerHandler(RegistrarInfluencerBaseHandler):
         UnidadTrabajoPuerto.savepoint()
         UnidadTrabajoPuerto.commit()
         
-        logger.info(f"✅ COMANDO HANDLER: Influencer registrado exitosamente - ID: {comando.id}")
+        logger.info(f"COMANDO HANDLER: Influencer registrado exitosamente - ID: {comando.id}")
 
 
 @comando.register(RegistrarInfluencer)

@@ -28,8 +28,8 @@ def ejecutar_commando(comando):
     """Ejecutor de comandos usando singledispatch."""
     import logging
     logger = logging.getLogger(__name__)
-    logger.error(f"🔍 DISPATCHER: No hay implementación registrada para {type(comando).__name__}")
-    logger.error(f"🔍 DISPATCHER: Comando recibido: {comando}")
-    logger.error(f"🔍 DISPATCHER: Tipo del comando: {type(comando)}")
-    logger.error(f"🔍 DISPATCHER: Registry actual: {ejecutar_commando.registry}")
+    logger.error(f"DISPATCHER: No hay implementación registrada para {type(comando).__name__}")
+    logger.error(f"DISPATCHER: Comando recibido: {comando}")
+    logger.error(f"DISPATCHER: Tipo del comando: {type(comando)}")
+    logger.error(f"DISPATCHER: Registry actual: {ejecutar_commando.registry}")
     raise NotImplementedError(f'No existe implementación para el comando de tipo {type(comando).__name__}')

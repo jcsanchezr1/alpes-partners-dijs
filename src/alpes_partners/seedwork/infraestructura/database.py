@@ -47,21 +47,21 @@ def init_db():
     from ...modulos.influencers.infraestructura.modelos import Base
     from ...modulos.campanas.infraestructura.schema.campanas import Campanas
     
-    logger.info("📋 Modelos registrados:")
+    logger.info("Modelos registrados:")
     logger.info(f"   - Influencers: {len([t for t in Base.metadata.tables.keys() if 'influencer' in t.lower()])} tablas")
     logger.info(f"   - Campanas: {len([t for t in Base.metadata.tables.keys() if 'campana' in t.lower()])} tablas")
     logger.info(f"   - Total tablas: {len(Base.metadata.tables)} tablas")
     
     # Solo recrear tablas si está explícitamente configurado
     if settings.recreate_db:
-        logger.warning("⚠️ RECREANDO BASE DE DATOS - Se perderán todos los datos")
+        logger.warning("RECREANDO BASE DE DATOS - Se perderán todos los datos")
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
-        logger.info("✅ Base de datos recreada completamente")
+        logger.info("Base de datos recreada completamente")
     else:
         # Solo crear las tablas si no existen (preservar datos)
         Base.metadata.create_all(bind=engine)
-        logger.info("✅ Tablas de base de datos creadas/actualizadas (datos preservados)")
+        logger.info("Tablas de base de datos creadas/actualizadas (datos preservados)")
 
 
 def init_db_flask_tables():
@@ -72,13 +72,13 @@ def init_db_flask_tables():
     
     # Crear todas las tablas definidas en los modelos
     Base.metadata.create_all(bind=engine)
-    logger.info("✅ Tablas Flask-SQLAlchemy creadas/actualizadas")
+    logger.info("Tablas Flask-SQLAlchemy creadas/actualizadas")
 
 
 def init_db_flask(app):
     """Inicializa la base de datos para Flask."""
     db.init_app(app)
-    logger.info("✅ Base de datos Flask inicializada")
+    logger.info("Base de datos Flask inicializada")
 
 
 def close_db():

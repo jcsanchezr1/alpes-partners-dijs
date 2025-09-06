@@ -46,18 +46,18 @@ class RegistrarCampana(Comando):
 class RegistrarCampanaHandler(RegistrarCampanaBaseHandler):
     
     def handle(self, comando: RegistrarCampana):
-        logger.info(f"🎯 COMANDO HANDLER: Iniciando registro de campana - Nombre: {comando.nombre}")
+        logger.info(f"COMANDO HANDLER: Iniciando registro de campana - Nombre: {comando.nombre}")
         
         # Crear repositorio para validaciones de dominio
         repositorio = self.fabrica_repositorio.crear_objeto(RepositorioCampanasSQLAlchemy.__class__)
         
         # VALIDACIÓN DE DOMINIO: Verificar unicidad del nombre ANTES de crear la entidad
-        logger.info(f"🔍 COMANDO HANDLER: Verificando unicidad del nombre: {comando.nombre}")
+        logger.info(f"COMANDO HANDLER: Verificando unicidad del nombre: {comando.nombre}")
         if repositorio.existe_con_nombre(comando.nombre):
-            logger.warning(f"⚠️ COMANDO HANDLER: Nombre ya registrado: {comando.nombre}")
+            logger.warning(f"COMANDO HANDLER: Nombre ya registrado: {comando.nombre}")
             raise CampanaYaExisteExcepcion(f"Ya existe una campana con el nombre {comando.nombre}")
         
-        logger.info(f"✅ COMANDO HANDLER: Nombre disponible: {comando.nombre}")
+        logger.info(f"COMANDO HANDLER: Nombre disponible: {comando.nombre}")
         
         # Crear la entidad solo después de validar las reglas de dominio
         campana_dto = RegistrarCampanaDTO(
@@ -92,7 +92,7 @@ class RegistrarCampanaHandler(RegistrarCampanaBaseHandler):
         UnidadTrabajoPuerto.savepoint()
         UnidadTrabajoPuerto.commit()
         
-        logger.info(f"✅ COMANDO HANDLER: Campana registrada exitosamente - ID: {comando.id}")
+        logger.info(f"COMANDO HANDLER: Campana registrada exitosamente - ID: {comando.id}")
 
 
 @comando.register(RegistrarCampana)

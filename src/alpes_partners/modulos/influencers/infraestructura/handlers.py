@@ -23,12 +23,12 @@ class HandlersIntegracionInfluencers:
         """Handler para evento InfluencerRegistrado de integración."""
         evento = kwargs.get('evento')
         if evento:
-            logger.info(f"📡 PULSAR: Publicando evento InfluencerRegistrado - ID: {evento.influencer_id}")
+            logger.info(f"PULSAR: Publicando evento InfluencerRegistrado - ID: {evento.influencer_id}")
             try:
                 self.despachador.publicar_evento_influencer_registrado(evento)
-                logger.info(f"✅ PULSAR: Evento InfluencerRegistrado publicado exitosamente")
+                logger.info(f"PULSAR: Evento InfluencerRegistrado publicado exitosamente")
             except Exception as e:
-                logger.error(f"❌ PULSAR: Error publicando evento InfluencerRegistrado: {e}")
+                logger.error(f"PULSAR: Error publicando evento InfluencerRegistrado: {e}")
                 # En un entorno de producción, aquí podrías implementar retry logic
                 # o enviar a una cola de dead letters
 
@@ -43,4 +43,4 @@ dispatcher.connect(
     sender=dispatcher.Any
 )
 
-logger.info("🔧 HANDLERS: Handlers de integración de Pulsar registrados")
+logger.info("HANDLERS: Handlers de integración de Pulsar registrados")

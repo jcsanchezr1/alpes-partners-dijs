@@ -42,27 +42,27 @@ def suscribirse_a_eventos_influencers_desde_campanas():
             schema=AvroSchema(EventoInfluencerRegistrado)
         )
 
-        logger.info("✅ CAMPAnAS: Suscrito a eventos de influencers")
-        logger.info("🎯 CAMPAnAS: Esperando eventos...")
+        logger.info("CAMPANAS: Suscrito a eventos de influencers")
+        logger.info("CAMPANAS: Esperando eventos...")
         
         while True:
             try:
                 mensaje = consumidor.receive()
-                logger.info(f"📨 CAMPAnAS: Evento recibido - {mensaje.value()}")
+                logger.info(f"CAMPANAS: Evento recibido - {mensaje.value()}")
                 
                 # Procesar evento
                 _procesar_evento_influencer(mensaje.value())
                 
                 # Confirmar procesamiento
                 consumidor.acknowledge(mensaje)
-                logger.info("✅ CAMPAnAS: Evento procesado y confirmado")
+                logger.info("CAMPANAS: Evento procesado y confirmado")
                 
             except Exception as e:
-                logger.error(f"❌ CAMPAnAS: Error procesando evento: {e}")
+                logger.error(f"CAMPANAS: Error procesando evento: {e}")
                 time.sleep(5)  # Esperar antes de continuar
                 
     except Exception as e:
-        logger.error(f"❌ CAMPAnAS: Error en consumidor: {e}")
+        logger.error(f"CAMPANAS: Error en consumidor: {e}")
     finally:
         if cliente:
             cliente.close()
@@ -79,10 +79,10 @@ def _procesar_evento_influencer(evento):
             
             # Solo procesar eventos de registro de influencers
             if not _es_evento_registro(evento):
-                logger.info(f"🔍 CAMPAnAS: Evento ignorado - Tipo: {type(evento).__name__}")
+                logger.info(f"CAMPANAS: Evento ignorado - Tipo: {type(evento).__name__}")
                 return
             
-            logger.info("🎯 CAMPAnAS: Procesando registro de influencer para crear campana")
+            logger.info("CAMPANAS: Procesando registro de influencer para crear campana")
             
             # Crear comando para registrar campana
             comando = _crear_comando_campana(datos)
@@ -90,12 +90,12 @@ def _procesar_evento_influencer(evento):
             # Ejecutar comando usando la función específica del módulo
             ejecutar_comando_registrar_campana(comando)
             
-            logger.info(f"✅ CAMPAnAS: Campana creada para influencer: {datos.get('nombre', 'N/A')}")
+            logger.info(f"CAMPANAS: Campana creada para influencer: {datos.get('nombre', 'N/A')}")
             
         except Exception as e:
-            logger.error(f"❌ CAMPAnAS: Error procesando evento: {e}")
+            logger.error(f"CAMPANAS: Error procesando evento: {e}")
             import traceback
-            logger.error(f"❌ CAMPAnAS: Traceback: {traceback.format_exc()}")
+            logger.error(f"CAMPANAS: Traceback: {traceback.format_exc()}")
 
 
 def _es_evento_registro(evento):

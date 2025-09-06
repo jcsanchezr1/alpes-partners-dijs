@@ -36,7 +36,7 @@ def registrar_influencer_asincrono():
     """Registra un nuevo influencer usando el patrón de comandos asíncrono."""
     try:
         datos_dict = request.json
-        logger.info(f"🚀 API: Iniciando registro asíncrono de influencer - Email: {datos_dict.get('email')}")
+        logger.info(f"API: Iniciando registro asíncrono de influencer - Email: {datos_dict.get('email')}")
         
         from datetime import datetime
         import uuid
@@ -59,7 +59,7 @@ def registrar_influencer_asincrono():
         # Revisar la clase Despachador de la capa de infraestructura
         ejecutar_commando(comando)
         
-        logger.info(f"✅ API: Comando enviado exitosamente - Comando ID: {comando.id}")
+        logger.info(f"API: Comando enviado exitosamente - Comando ID: {comando.id}")
         return Response(
             json.dumps({"mensaje": "Comando procesado", "comando_id": comando.id}),
             status=202,
@@ -67,21 +67,21 @@ def registrar_influencer_asincrono():
         )
         
     except EmailYaRegistrado as e:
-        logger.warning(f"⚠️ API: Email ya registrado en comando: {e}")
+        logger.warning(f"API: Email ya registrado en comando: {e}")
         return Response(
             json.dumps({"error": str(e)}),
             status=409,
             mimetype='application/json'
         )
     except ExcepcionDominio as e:
-        logger.error(f"❌ API: Error de dominio: {e}")
+        logger.error(f"API: Error de dominio: {e}")
         return Response(
             json.dumps({"error": str(e)}),
             status=400,
             mimetype='application/json'
         )
     except Exception as e:
-        logger.error(f"❌ API: Error interno: {e}", exc_info=True)
+        logger.error(f"API: Error interno: {e}", exc_info=True)
         return Response(
             json.dumps({"error": "Error interno del servidor"}),
             status=500,
@@ -93,7 +93,7 @@ def registrar_influencer_asincrono():
 def listar_influencers():
     """Lista influencers con filtros opcionales."""
     try:
-        logger.info("🔍 API: Iniciando consulta de influencers")
+        logger.info("API: Iniciando consulta de influencers")
         
         # Obtener parámetros de query
         estado = request.args.get('estado')
@@ -127,7 +127,7 @@ def listar_influencers():
             offset=offset
         )
         
-        logger.info(f"✅ API: Consulta exitosa - {len(resultado)} influencers encontrados")
+        logger.info(f"API: Consulta exitosa - {len(resultado)} influencers encontrados")
         
         # Convertir DTOs a diccionarios para JSON
         resultado_dict = []
@@ -170,7 +170,7 @@ def listar_influencers():
         )
         
     except Exception as e:
-        logger.error(f"❌ API: Error en consulta: {e}", exc_info=True)
+        logger.error(f"API: Error en consulta: {e}", exc_info=True)
         return Response(
             json.dumps({"error": "Error interno del servidor"}),
             status=500,
