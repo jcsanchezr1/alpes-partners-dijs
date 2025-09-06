@@ -30,15 +30,15 @@ Este proyecto implementa una **arquitectura hexagonal** que separa claramente la
 
 El servicio utiliza los siguientes **patrones y principios de Domain-Driven Design**:
 
-- ** Entidades**: Objetos con identidad única y ciclo de vida (`Influencer`)
-- ** Objetos Valor**: Tipos inmutables que representan conceptos (`Email`, `Telefono`)
-- ** Seedwork**: Elementos base compartidos entre módulos
-- ** Servicios de Dominio**: Lógica que no pertenece a una entidad específica
-- ** Módulos**: Separación de contextos acotados (`influencers`, `campanas`)
-- ** Agregaciones**: Raíces de agregado que mantienen consistencia
-- ** Fábricas**: Creación de objetos complejos
-- ** Repositorios**: Abstracción para persistencia
-- ** Unidad de Trabajo**: Manejo de transacciones y eventos
+- **Entidades**: Objetos con identidad única y ciclo de vida (`Influencer`)
+- **Objetos Valor**: Tipos inmutables que representan conceptos (`Email`, `Telefono`)
+- **Seedwork**: Elementos base compartidos entre módulos
+- **Servicios de Dominio**: Lógica que no pertenece a una entidad específica
+- **Módulos**: Separación de contextos acotados (`influencers`, `campanas`)
+- **Agregaciones**: Raíces de agregado que mantienen consistencia
+- **Fábricas**: Creación de objetos complejos
+- **Repositorios**: Abstracción para persistencia
+- **Unidad de Trabajo**: Manejo de transacciones y eventos
 
 ## Estructura del Proyecto
 
