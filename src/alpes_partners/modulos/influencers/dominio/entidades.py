@@ -73,16 +73,13 @@ class Influencer(AgregacionRaiz):
         if self.estado != EstadoInfluencer.PENDIENTE:
             raise ExcepcionEstadoInvalido("El influencer debe estar en estado PENDIENTE para ser procesado")
         
-        # Importar el evento aquí para evitar imports circulares
-        from .eventos import InfluencerRegistrado
-        
-        # Emitir evento de influencer registrado
+        # Emitir evento de registro
         self.agregar_evento(InfluencerRegistrado(
-            influencer_id=str(self.id),
-            nombre=self.nombre,  # nombre es str, no objeto valor
-            email=self.email.valor,  # email es objeto valor
-            categorias=self.perfil.categorias.categorias if hasattr(self.perfil, 'categorias') else [],
-            plataformas=[p.valor for p in self.plataformas] if hasattr(self, 'plataformas') and self.plataformas else [],
+            influencer_id=self.id,
+            nombre=self.nombre,
+            email=self.email.valor,
+            categorias=self.perfil.categorias.categorias,
+            plataformas=[],  # Se actualizará cuando se agreguen plataformas
             fecha_registro=self.fecha_creacion
         ))
     

@@ -1,8 +1,9 @@
 # Importar comandos para registrarlos automáticamente
 from .comandos import registrar_influencer
 
-# Importar handlers de aplicación
-from .handlers import ManejadorRegistrarInfluencer
+# Configurar handlers de integración
+from pydispatch import dispatcher
+from .handlers import HandlerInfluencerIntegracion
+from ..dominio.eventos import InfluencerRegistrado
 
-# Importar handlers de integración de Pulsar
-from ..infraestructura import handlers
+dispatcher.connect(HandlerInfluencerIntegracion.handle_influencer_registrado, signal=f'{InfluencerRegistrado.__name__}Integracion')
