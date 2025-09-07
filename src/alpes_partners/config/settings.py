@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     api_port: int = 8000
     
     # Eventos
-    eventos_topico_afiliados: str = "afiliados"
-    eventos_topico_campanas: str = "campanas"
+    eventos_topico_influencers: str = "eventos-influencers"
+    eventos_topico_campanas: str = "eventos-campanas"
     
     # Logging
     log_level: str = "INFO"
