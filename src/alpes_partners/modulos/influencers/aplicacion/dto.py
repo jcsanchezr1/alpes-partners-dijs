@@ -36,35 +36,6 @@ class RegistrarInfluencerDTO(DTO):
         return v.strip()
 
 
-class DatosAudienciaDTO(DTO):
-    """DTO para datos de audiencia de una plataforma."""
-    plataforma: Plataforma
-    seguidores: int
-    engagement_rate: float
-    alcance_promedio: Optional[int] = 0
-    
-    @validator('seguidores')
-    def validar_seguidores(cls, v):
-        if v < 0:
-            raise ValueError('Los seguidores no pueden ser negativos')
-        return v
-    
-    @validator('engagement_rate')
-    def validar_engagement(cls, v):
-        if not (0 <= v <= 100):
-            raise ValueError('El engagement rate debe estar entre 0 y 100')
-        return v
-    
-    @validator('plataforma', pre=True)
-    def validar_plataforma(cls, v):
-        if isinstance(v, str):
-            try:
-                return Plataforma(v)
-            except ValueError:
-                raise ValueError(f'Plataforma inválida: {v}')
-        return v
-
-
 class DemografiaDTO(DTO):
     """DTO para demografía de audiencia."""
     distribucion_genero: Dict[Genero, float]
@@ -111,15 +82,3 @@ class InfluencerDTO(DTO):
     
     # Demografia (opcional)
     demografia: Optional[DemografiaDTO] = None
-
-
-class ActualizarPerfilInfluencerDTO(DTO):
-    """DTO para actualizar perfil de influencer."""
-    descripcion: Optional[str] = None
-    biografia: Optional[str] = None
-    sitio_web: Optional[str] = None
-
-
-class AgregarPlataformaDTO(DTO):
-    """DTO para agregar una plataforma al influencer."""
-    datos_audiencia: DatosAudienciaDTO

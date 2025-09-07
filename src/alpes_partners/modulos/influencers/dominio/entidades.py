@@ -83,15 +83,6 @@ class Influencer(AgregacionRaiz):
             fecha_registro=self.fecha_creacion
         ))
     
-    def puede_participar_en_campanas(self) -> bool:
-        """Verifica si el influencer puede participar en campanas."""
-        return (self.estado == EstadoInfluencer.ACTIVO and 
-                len(self.audiencia_por_plataforma) > 0)
-    
-    def es_compatible_con_categoria(self, categoria: str) -> bool:
-        """Verifica si el influencer maneja una categoría específica."""
-        return categoria.lower() in self.perfil.categorias.categorias
-    
     def obtener_tipo_principal(self) -> Optional[TipoInfluencer]:
         """Obtiene el tipo de influencer basado en la plataforma con más seguidores."""
         if not self.audiencia_por_plataforma:
