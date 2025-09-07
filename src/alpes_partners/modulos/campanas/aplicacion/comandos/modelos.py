@@ -45,31 +45,3 @@ class CrearCampana(Comando):
         self.influencer_origen_id = influencer_origen_id
         self.categoria_origen = categoria_origen
 
-# @dataclass
-# class RegistrarCampana(CrearCampana):
-#     """Comando para registrar una campana, igual que CrearCampana pero con nombre DDD estándar."""
-#     pass
-# NOTA: Esta clase ha sido movida a crear_campana.py con la nueva estructura
-
-class CrearCampanaPorCategoria(Comando):
-    """Comando específico para crear campanas automáticamente basadas en categorías de influencers."""
-    def __init__(self,
-                 influencer_id: str,
-                 nombre_influencer: str,
-                 email_influencer: str,
-                 categorias_influencer: List[str],
-                 fecha_registro_influencer: datetime):
-        self.influencer_id = influencer_id
-        self.nombre_influencer = nombre_influencer
-        self.email_influencer = email_influencer
-        self.categorias_influencer = categorias_influencer
-        self.fecha_registro_influencer = fecha_registro_influencer
-
-class RegistrarCampanaPorCategorias(Comando):
-    """Comando para registrar campanas para todas las categorías de un influencer."""
-    def __init__(self, influencer_id: str, nombre_influencer: str, email_influencer: str, categorias_influencer: list, fecha_registro_influencer: str):
-        self.influencer_id = influencer_id
-        self.nombre_influencer = nombre_influencer
-        self.email_influencer = email_influencer
-        self.categorias_influencer = categorias_influencer
-        self.fecha_registro_influencer = fecha_registro_influencer
